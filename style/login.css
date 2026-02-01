@@ -124,7 +124,7 @@ body {
     width: 100%;
     max-width: 200px;
     padding: 14px 24px;
-    background-color: #CBD5E0;
+    background-color: #6B7FD7;
     color: #ffffff;
     border: none;
     border-radius: 8px;
@@ -137,7 +137,7 @@ body {
 }
 
 .login-btn:hover {
-    background-color: #6B7FD7;
+    background-color: #CBD5E0;
     transform: translateY(-2px);
 }
 
@@ -162,7 +162,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(107, 127, 215, 0.4) 0%, rgba(135, 206, 235, 0.3) 100%);
+    background: linear-gradient(to bottom, transparent 0%, transparent 0%, rgba(90, 129, 250, 0.8) 85%, rgba(53, 76, 148, 0.9) 100%);
 }
 
 /* Responsive */
