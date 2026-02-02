@@ -10,14 +10,14 @@ body {
     display: flex;
 }
 
-.login-container {
+.register-container {
     display: flex;
     width: 100%;
     min-height: 100vh;
 }
 
 /* Left Side - Form */
-.login-form-section {
+.register-form-section {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -30,7 +30,7 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 50px;
+    margin-bottom: 30px;
 }
 
 .logo-container img {
@@ -40,7 +40,7 @@ body {
 }
 
 .welcome-text {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
 .welcome-text h2 {
@@ -56,7 +56,7 @@ body {
 }
 
 .form-group {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .form-group label {
@@ -117,21 +117,7 @@ body {
     border: 1px solid #F5C6CB;
 }
 
-.forgot-password {
-    display: block;
-    text-align: right;
-    font-size: 12px;
-    color: #6B7FD7;
-    text-decoration: none;
-    margin-top: 8px;
-    max-width: 400px;
-}
-
-.forgot-password:hover {
-    text-decoration: underline;
-}
-
-.login-btn {
+.register-btn {
     width: 100%;
     max-width: 400px;
     padding: 14px 24px;
@@ -148,12 +134,12 @@ body {
     margin-bottom: 16px;
 }
 
-.login-btn:hover {
+.register-btn:hover {
     background-color: #2D3A70;
     transform: translateY(-2px);
 }
 
-.login-btn:active {
+.register-btn:active {
     transform: translateY(0);
 }
 
@@ -184,44 +170,60 @@ body {
 
 .google-btn:hover {
     background-color: #F7FAFC;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
-.google-btn:active {
-    transform: translateY(0);
-}
-
-.register-link {
-    text-align: center;
+.login-link {
     font-size: 14px;
-    color: #2D3748;
+    color: #718096;
     max-width: 400px;
+    text-align: center;
 }
 
-.register-link a {
-    color: #6B7FD7;
+.login-link a {
+    color: #3B4C94;
     text-decoration: none;
     font-weight: 600;
 }
 
-.register-link a:hover {
+.login-link a:hover {
     text-decoration: underline;
 }
 
-/* Right Side - Image */
-.login-image-section {
+/* Message Styles */
+.message {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    max-width: 400px;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Right Side - Background Image */
+.register-image-section {
     flex: 1;
     background-image: url('../assets/background-picture.jpg');
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.login-image-section::before {
+.register-image-section::before {
     content: '';
     position: absolute;
     top: 0;
@@ -229,55 +231,65 @@ body {
     right: 0;
     bottom: 0;
     background: linear-gradient(to bottom, transparent 0%, rgba(90, 129, 250, 0.8) 90%, rgba(53, 76, 148, 0.9) 100%);
-    z-index: 1;
 }
 
 .image-text {
     position: relative;
-    z-index: 2;
+    z-index: 1;
     text-align: center;
+    padding: 40px;
 }
 
 .image-text h1 {
-    font-size: 56px;
+    font-size: 48px;
     font-weight: 700;
     color: #ffffff;
     line-height: 1.2;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Responsive */
-@media (max-width: 992px) {
-    .login-container {
+@media (max-width: 1024px) {
+    .register-container {
         flex-direction: column;
     }
 
-    .login-form-section {
-        padding: 30px 40px;
+    .register-form-section {
+        padding: 30px 20px;
+        order: 2;
     }
 
-    .login-image-section {
-        min-height: 300px;
-        order: -1;
+    .register-image-section {
+        min-height: 200px;
+        order: 1;
+    }
+
+    .logo-container img {
+        width: 200px;
+        margin-left: 0;
+    }
+
+    .welcome-text h2 {
+        font-size: 28px;
+    }
+
+    .image-text h1 {
+        font-size: 32px;
     }
 }
 
 @media (max-width: 576px) {
-    .login-form-section {
-        padding: 20px;
+    .register-form-section {
+        padding: 20px 15px;
     }
 
     .welcome-text h2 {
-        font-size: 26px;
+        font-size: 24px;
     }
 
-    .input-wrapper input {
-        max-width: 100%;
-    }
-
-    .login-btn,
+    .input-wrapper input,
+    .register-btn,
     .google-btn,
-    .register-link {
+    .login-link {
         max-width: 100%;
     }
 }
