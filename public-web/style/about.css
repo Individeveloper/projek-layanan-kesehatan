@@ -1,0 +1,275 @@
+/* About Page Styles */
+
+/* About Hero */
+.about-hero {
+    position: relative;
+    height: 450px;
+    background-image: url('../assets/about-asset1.png');
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    color: #2B308A;
+    margin: 30px auto;
+    max-width: 1200px;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+/* Foreground Image Layer */
+.hero-foreground-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.hero-foreground-img img {
+    height: 100%;
+    width: auto;
+    object-fit: cover;
+}
+
+/* Hero Overlay: Lighter White from left to right */
+.about-hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.6) 40%, rgba(255, 255, 255, 0) 100%);
+    border-radius: 20px;
+    z-index: 2;
+}
+
+.about-hero-content {
+    position: relative;
+    z-index: 3;
+    padding: 50px 50px;
+}
+
+.about-hero-content h1 {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #2B308A;
+}
+
+.about-hero-content p {
+    font-size: 20px;
+    font-weight: 300;
+    color: #5B7FDB;
+    opacity: 0.9;
+}
+
+/* Description Section */
+/* Description Section (clean text like original) */
+.about-description {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    background: transparent;
+    border-radius: 0;
+}
+
+.about-description p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #2B308A;
+    text-align: justify;
+}
+
+/* Visi Misi Section */
+.visi-misi-section {
+    padding: 40px 20px 80px;
+}
+
+.visi-misi-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.visi-misi-image {
+    width: 100%;
+}
+
+.visi-misi-image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.visi-misi-content h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2B308A;
+    margin-bottom: 12px;
+}
+
+.visi-misi-content h3:not(:first-child) {
+    margin-top: 32px;
+}
+
+.visi-misi-content p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #5B7FDB;
+}
+
+.visi-misi-content ul {
+    list-style: disc;
+    padding-left: 20px;
+    margin-top: 8px;
+}
+
+.visi-misi-content ul li {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #5B7FDB;
+    margin-bottom: 4px;
+}
+
+/* HEART Values Section */
+.heart-values-section {
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #5B7FDB 0%, #4A63B8 100%);
+    border-radius: 40px;
+    margin: 40px 20px;
+}
+
+.heart-values-grid {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.heart-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+.heart-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s, background 0.3s;
+    cursor: default;
+}
+
+.heart-letter {
+    font-size: 48px;
+    font-weight: 700;
+    color: #ffffff;
+    transition: color 0.3s;
+}
+
+.heart-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .about-hero {
+        height: 350px;
+    }
+
+    .about-hero-content h1 {
+        font-size: 32px;
+    }
+
+    .about-hero-content p {
+        font-size: 16px;
+    }
+
+    .visi-misi-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .visi-misi-image {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .heart-values-grid {
+        gap: 20px;
+    }
+
+    .heart-circle {
+        width: 100px;
+        height: 100px;
+    }
+
+    .heart-letter {
+        font-size: 40px;
+    }
+}
+
+@media (max-width: 576px) {
+    .about-hero {
+        height: 280px;
+        margin: 15px;
+    }
+
+    .about-hero-content {
+        padding: 30px;
+    }
+
+    .about-hero-content h1 {
+        font-size: 26px;
+    }
+
+    .about-hero-content p {
+        font-size: 14px;
+    }
+
+    .about-description {
+        padding: 40px 20px;
+    }
+
+    .visi-misi-image img {
+        height: auto;
+    }
+
+    .heart-values-grid {
+        gap: 16px;
+    }
+
+    .heart-circle {
+        width: 80px;
+        height: 80px;
+    }
+
+    .heart-letter {
+        font-size: 32px;
+    }
+
+    .heart-label {
+        font-size: 12px;
+    }
+}

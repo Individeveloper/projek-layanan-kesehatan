@@ -1,0 +1,266 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #F9FAFB;
+    color: #1F2937;
+}
+
+/* Header */
+.account-header {
+    background-color: #FFFFFF;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.account-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #3B4C94;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+    background-color: #E6EBFF;
+}
+
+.logout-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #DC2626;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: #FEE2E2;
+}
+
+/* Main Content */
+.account-main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 0.5rem;
+}
+
+.page-header p {
+    color: #6B7280;
+}
+
+/* Profile Card */
+.profile-card {
+    background-color: #FFFFFF;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar {
+    width: 96px;
+    height: 96px;
+    background: linear-gradient(135deg, #3B4C94 0%, #5A81FA 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: #FFFFFF;
+}
+
+.profile-info h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 0.25rem;
+}
+
+.profile-info p {
+    color: #6B7280;
+    font-size: 0.875rem;
+}
+
+/* Account Details */
+.account-details {
+    border-top: 1px solid #E5E7EB;
+    padding-top: 1.5rem;
+}
+
+.account-details h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 1rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.info-item label {
+    display: block;
+    font-size: 0.875rem;
+    color: #6B7280;
+    margin-bottom: 0.25rem;
+}
+
+.info-item p {
+    font-weight: 500;
+    color: #1F2937;
+}
+
+.status-active {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #059669;
+    font-weight: 500;
+}
+
+.status-active i {
+    font-size: 0.875rem;
+}
+
+/* Quick Actions */
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.action-card {
+    background-color: #FFFFFF;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    padding: 1.5rem;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.action-card:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.action-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.action-icon.blue {
+    background-color: #DBEAFE;
+    color: #3B4C94;
+}
+
+.action-icon.green {
+    background-color: #D1FAE5;
+    color: #059669;
+}
+
+.action-icon.purple {
+    background-color: #E9D5FF;
+    color: #7C3AED;
+}
+
+.action-card h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 0.25rem;
+}
+
+.action-card p {
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+/* Footer */
+.account-footer {
+    background-color: #111827;
+    color: #FFFFFF;
+    padding: 2rem 0;
+    margin-top: 4rem;
+}
+
+.account-footer .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    text-align: center;
+}
+
+.account-footer p {
+    color: #9CA3AF;
+    font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+}

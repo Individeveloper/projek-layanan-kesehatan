@@ -1,0 +1,620 @@
+/* Reservation Page Styles */
+
+/* Main Container */
+.reservation-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    min-height: calc(100vh - 200px);
+}
+
+/* Progress Stepper */
+.progress-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 50px;
+    padding: 0 20px;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+.step-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #E6EBFF;
+    color: #A0A0A0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    transition: all 0.3s;
+    position: relative;
+    z-index: 2;
+}
+
+.step.active .step-circle {
+    background: #2B308A;
+    color: #FFFFFF;
+}
+
+.step.completed .step-circle {
+    background: #28a745;
+    color: #FFFFFF;
+}
+
+.step.completed .step-circle::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+}
+
+.step-label {
+    font-size: 13px;
+    color: #A0A0A0;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.step.active .step-label {
+    color: #2B308A;
+    font-weight: 600;
+}
+
+.step.completed .step-label {
+    color: #28a745;
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: #E6EBFF;
+    margin: 0 10px;
+    position: relative;
+    top: -20px;
+}
+
+.step.completed+.step-line {
+    background: #28a745;
+}
+
+/* Step Content */
+.step-content {
+    display: none;
+}
+
+.step-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form Card */
+.form-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.form-title {
+    color: #2B308A;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.form-subtitle {
+    color: #999;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+.section-label {
+    display: block;
+    color: #999;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+/* Patient Status Cards */
+.patient-status-section {
+    margin-bottom: 30px;
+}
+
+.status-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.status-card {
+    background: #FFFFFF;
+    border: 2px solid #E6EBFF;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.status-card:hover {
+    border-color: #5B7FDB;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(91, 127, 219, 0.15);
+}
+
+.status-card.active {
+    border-color: #2B308A;
+    background: #F8F9FF;
+}
+
+.status-card i {
+    font-size: 32px;
+    color: #5B7FDB;
+    margin-bottom: 12px;
+}
+
+.status-card.active i {
+    color: #2B308A;
+}
+
+.status-card h3 {
+    color: #2B308A;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.status-card p {
+    color: #999;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* RM Display Card */
+.rm-display-section {
+    margin-bottom: 25px;
+}
+
+.rm-display-card {
+    background: #F8F9FF;
+    border: 1px solid #5B7FDB;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.rm-display-card i {
+    font-size: 24px;
+    color: #2B308A;
+}
+
+.rm-number {
+    color: #2B308A;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #2B308A;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.required {
+    color: #DC3545;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #E6EBFF;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    color: #2D3748;
+    transition: border-color 0.3s;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #CCC;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #5B7FDB;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* Selected Poli Display */
+.selected-poli-display {
+    margin-bottom: 25px;
+}
+
+.poli-badge {
+    background: #F8F9FF;
+    border: 1px solid #5B7FDB;
+    border-radius: 8px;
+    padding: 12px 20px;
+    color: #2B308A;
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Payment Cards */
+.payment-section {
+    margin: 30px 0;
+}
+
+.payment-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.payment-card {
+    background: #FFFFFF;
+    border: 2px solid #E6EBFF;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.payment-card:hover {
+    border-color: #5B7FDB;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(91, 127, 219, 0.15);
+}
+
+.payment-card.active {
+    border-color: #2B308A;
+    background: #F8F9FF;
+}
+
+.payment-card i {
+    font-size: 32px;
+    color: #5B7FDB;
+    margin-bottom: 12px;
+}
+
+.payment-card.active i {
+    color: #2B308A;
+}
+
+.payment-card h3 {
+    color: #2B308A;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.payment-card p {
+    color: #999;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* Info Box */
+.info-box {
+    background: #FFF9E6;
+    border: 1px solid #FFE194;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    margin: 25px 0;
+}
+
+.info-box i {
+    color: #F39C12;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.info-content strong {
+    color: #2B308A;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.info-content p {
+    color: #666;
+    font-size: 13px;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary,
+.btn-download {
+    padding: 14px 32px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-primary {
+    background: #2B308A;
+    color: #FFFFFF;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background: #1F2461;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(43, 48, 138, 0.3);
+}
+
+.btn-secondary {
+    background: #FFFFFF;
+    color: #2B308A;
+    border: 2px solid #2B308A;
+}
+
+.btn-secondary:hover {
+    background: #F8F9FF;
+}
+
+.btn-download {
+    background: #FFFFFF;
+    color: #2B308A;
+    border: 2px solid #2B308A;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-download:hover {
+    background: #2B308A;
+    color: #FFFFFF;
+}
+
+.form-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+/* Success Card */
+.success-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 50px 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.success-icon {
+    margin-bottom: 20px;
+}
+
+.success-icon i {
+    font-size: 80px;
+    color: #28a745;
+}
+
+.success-title {
+    color: #2B308A;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.success-subtitle {
+    color: #999;
+    font-size: 15px;
+    margin-bottom: 30px;
+}
+
+/* Queue Card */
+.queue-card {
+    background: linear-gradient(180deg, #2B308A 0%, #5B7FDB 100%);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.queue-header {
+    margin-bottom: 15px;
+}
+
+.queue-header p {
+    color: #FFFFFF;
+    font-size: 14px;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.queue-number {
+    color: #FFFFFF;
+    font-size: 80px;
+    font-weight: 800;
+    letter-spacing: 8px;
+    line-height: 1;
+}
+
+/* Details Card */
+.details-card {
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid #E6EBFF;
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px dotted #E6EBFF;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: #5B7FDB;
+    font-size: 14px;
+}
+
+.detail-value {
+    color: #2B308A;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+}
+
+.timestamp {
+    color: #999;
+    font-size: 12px;
+    margin: 20px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .reservation-container {
+        padding: 30px 15px 60px;
+    }
+
+    .progress-stepper {
+        padding: 0 10px;
+        margin-bottom: 40px;
+    }
+
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .step-label {
+        font-size: 11px;
+    }
+
+    .step-line {
+        margin: 0 5px;
+        top: -18px;
+    }
+
+    .form-card,
+    .success-card {
+        padding: 30px 20px;
+    }
+
+    .form-title {
+        font-size: 20px;
+    }
+
+    .status-cards,
+    .payment-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .queue-number {
+        font-size: 60px;
+    }
+
+    .detail-row {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .detail-value {
+        text-align: left;
+    }
+}
+
+@media (max-width: 480px) {
+    .step-label {
+        display: none;
+    }
+
+    .step-circle {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+
+    .queue-number {
+        font-size: 50px;
+        letter-spacing: 4px;
+    }
+
+    .success-icon i {
+        font-size: 60px;
+    }
+
+    .success-title {
+        font-size: 22px;
+    }
+}
