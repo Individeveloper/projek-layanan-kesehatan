@@ -1,6 +1,13 @@
 <?php
 session_start();
 require_once 'includes/auth.php';
+
+// Only admin can access this page
+if ($_SESSION['role'] !== 'admin') {
+    header('Location: index.php');
+    exit;
+}
+
 require_once '../config/connection.php';
 
 $page_title = 'Kelola Pengguna';

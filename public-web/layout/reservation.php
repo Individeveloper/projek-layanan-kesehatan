@@ -13,6 +13,12 @@
     <?php 
     session_start();
     
+    // Redirect admin and doctor to admin panel
+    if (isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || strpos($_SESSION['role'], 'doctor-') === 0)) {
+        header('Location: ../../admin-panel/index.php');
+        exit;
+    }
+    
     // Cek apakah user sudah login, jika belum redirect ke login
     if (!isset($_SESSION['user_id'])) {
         header('Location: login.php');

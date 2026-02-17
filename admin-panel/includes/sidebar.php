@@ -1,7 +1,7 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <i class="fas fa-hospital"></i>
-                <h2>Admin Panel</h2>
+                <h2><?php echo (strpos($_SESSION['role'], 'doctor-') === 0) ? 'Panel Dokter' : 'Admin Panel'; ?></h2>
             </div>
             
             <nav class="sidebar-nav">
@@ -9,18 +9,29 @@
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="users.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'users.php' ? 'active' : ''; ?>">
-                    <i class="fas fa-users"></i>
-                    <span>Kelola Pengguna</span>
-                </a>
-                <a href="polyclinics.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'polyclinics.php' ? 'active' : ''; ?>">
-                    <i class="fas fa-clinic-medical"></i>
-                    <span>Kelola Poliklinik & Jadwal</span>
-                </a>
-                <a href="reservations.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'reservations.php' ? 'active' : ''; ?>">
-                    <i class="fas fa-file-medical"></i>
-                    <span>Kelola Reservasi</span>
-                </a>
+                
+                <?php if ($_SESSION['role'] === 'admin'): ?>
+                    <a href="users.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'users.php' ? 'active' : ''; ?>">
+                        <i class="fas fa-users"></i>
+                        <span>Kelola Pengguna</span>
+                    </a>
+                    <a href="polyclinics.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'polyclinics.php' ? 'active' : ''; ?>">
+                        <i class="fas fa-clinic-medical"></i>
+                        <span>Kelola Poliklinik & Jadwal</span>
+                    </a>
+                    <a href="reservations.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'reservations.php' ? 'active' : ''; ?>">
+                        <i class="fas fa-file-medical"></i>
+                        <span>Kelola Reservasi</span>
+                    </a>
+                <?php endif; ?>
+                
+                <?php if (strpos($_SESSION['role'], 'doctor-') === 0): ?>
+                    <a href="medical_records.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'medical_records.php' ? 'active' : ''; ?>">
+                        <i class="fas fa-notes-medical"></i>
+                        <span>Rekam Medis Pasien</span>
+                    </a>
+                <?php endif; ?>
+                
                 <a href="logout.php" class="nav-item nav-logout">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Keluar</span>

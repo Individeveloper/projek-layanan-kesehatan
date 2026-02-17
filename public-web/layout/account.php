@@ -7,6 +7,12 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Redirect admin and doctor to their respective dashboards
+if (isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || strpos($_SESSION['role'], 'doctor-') === 0)) {
+    header('Location: ../../admin-panel/index.php');
+    exit;
+}
+
 // Include database connection
 require_once '../../config/connection.php';
 

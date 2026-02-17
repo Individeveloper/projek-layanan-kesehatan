@@ -1,5 +1,12 @@
 <?php
 session_start();
+
+// Redirect admin and doctor to admin panel
+if (isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || strpos($_SESSION['role'], 'doctor-') === 0)) {
+    header('Location: ../../admin-panel/index.php');
+    exit;
+}
+
 require_once '../../config/connection.php';
 
 // Ambil jadwal poli dari database
