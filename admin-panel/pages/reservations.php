@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'includes/auth.php';
+require_once '../includes/auth.php';
 
 // Only admin can access this page
 if ($_SESSION['role'] !== 'admin') {
@@ -8,7 +8,7 @@ if ($_SESSION['role'] !== 'admin') {
     exit;
 }
 
-require_once '../config/connection.php';
+require_once '../../config/connection.php';
 
 $page_title = 'Kelola Reservasi';
 $message = '';
@@ -59,7 +59,7 @@ if ($filter_status) {
     $query .= " AND r.status = '" . $db->real_escape_string($filter_status) . "'";
 }
 if ($filter_date) {
-    $query .= " AND DATE(r.visit_date) = '" . $db->real_escape_string($filter_date) . "'";
+    $query .= " AND DATE(r.reservation_date) = '" . $db->real_escape_string($filter_date) . "'";
 }
 
 $query .= " ORDER BY r.created_at DESC";
@@ -74,8 +74,8 @@ $stats = [
     'cancelled' => $db->query("SELECT COUNT(*) as count FROM reservations WHERE status = 'cancelled'")->fetch_assoc()['count'],
 ];
 
-include 'includes/header.php';
-include 'includes/sidebar.php';
+include '../includes/header.php';
+include '../includes/sidebar.php';
 ?>
 
 <?php if ($message): ?>
@@ -168,7 +168,7 @@ include 'includes/sidebar.php';
                                 <td><?php echo htmlspecialchars($reservation['nik']); ?></td>
                                 <td><?php echo htmlspecialchars($reservation['phone_number']); ?></td>
                                 <td><?php echo htmlspecialchars($reservation['polyclinic_name']); ?></td>
-                                <td><?php echo date('d/m/Y', strtotime($reservation['visit_date'])); ?></td>
+                                <td><?php echo date('d/m/Y', strtotime($reservation['reservation_date'])); ?></td>
                                 <td>
                                     <span class="badge badge-<?php echo $reservation['status']; ?>">
                                         <?php echo ucfirst($reservation['status']); ?>
@@ -300,4 +300,4 @@ function updateStatus(id, currentStatus) {
 }
 </script>
 
-<?php include 'includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?>

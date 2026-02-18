@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'includes/auth.php';
+require_once '../includes/auth.php';
 
 // Only admin can access this page
 if ($_SESSION['role'] !== 'admin') {
@@ -8,7 +8,7 @@ if ($_SESSION['role'] !== 'admin') {
     exit;
 }
 
-require_once '../config/connection.php';
+require_once '../../config/connection.php';
 
 $page_title = 'Kelola Poliklinik & Jadwal';
 $message = '';
@@ -146,8 +146,8 @@ $polyclinics = $db->query("
     ORDER BY p.name
 ");
 
-include 'includes/header.php';
-include 'includes/sidebar.php';
+include '../includes/header.php';
+include '../includes/sidebar.php';
 ?>
 
 <?php if ($message): ?>
@@ -445,4 +445,4 @@ function deletePolyclinic(id) {
 }
 </script>
 
-<?php include 'includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?>

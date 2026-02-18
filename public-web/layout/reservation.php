@@ -6,6 +6,7 @@
     <title>Reservasi Online - Heartlink Hospital</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="../style/main.css">
     <link rel="stylesheet" href="../style/reservation.css">
 </head>
@@ -13,9 +14,9 @@
     <?php 
     session_start();
     
-    // Redirect admin and doctor to admin panel
-    if (isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || strpos($_SESSION['role'], 'doctor-') === 0)) {
-        header('Location: ../../admin-panel/index.php');
+    // Redirect admin to admin panel
+    if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+        header('Location: ../../admin-panel/pages/index.php');
         exit;
     }
     
@@ -84,15 +85,6 @@
                     </div>
                 </div>
 
-                <!-- Medical Record Display (for new patients - auto generated) -->
-                <div class="rm-display-section" id="rmDisplaySection">
-                    <label class="section-label">Nomor Rekam Medis (Otomatis)</label>
-                    <div class="rm-display-card">
-                        <i class="fas fa-id-card"></i>
-                        <div class="rm-number" id="rmNumberDisplay">RM12345678</div>
-                    </div>
-                </div>
-
                 <!-- Medical Record Input (for existing patients - manual input) -->
                 <div class="form-group" id="rmInputSection" style="display: none;">
                     <label for="medicalRecord">No Rekam Medis<span class="required">*</span></label>
@@ -111,7 +103,10 @@
                     </div>
                     <div class="form-group">
                         <label for="birthDate">Tanggal Lahir<span class="required">*</span></label>
-                        <input type="date" id="birthDate" name="birthDate" placeholder="dd/mm/yy" required>
+                        <div class="date-input-wrapper">
+                            <i class="fas fa-calendar-alt date-icon"></i>
+                            <input type="date" id="birthDate" name="birthDate" required>
+                        </div>
                     </div>
                 </div>
 
@@ -186,18 +181,20 @@
 
                 <div class="form-group">
                     <label for="visitDate">Tanggal Kunjungan<span class="required">*</span></label>
-                    <input type="date" id="visitDate" name="visitDate" placeholder="dd/mm/yy" required>
+                    <div class="date-input-wrapper">
+                        <i class="fas fa-calendar-alt date-icon"></i>
+                        <input type="text" id="visitDate" name="visitDate" placeholder="Pilih tanggal kunjungan..." required readonly>
+                    </div>
+                    <small class="form-hint"><i class="fas fa-info-circle"></i> Pilih tanggal kunjungan (Senin - Jumat)</small>
+                    <div id="quota-info" class="quota-info-box" style="display: none;"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="doctor">Pilih Dokter<span class="required">*</span></label>
-                    <select id="doctor" name="doctor" required>
-                        <option value="">---PILIH DOKTER---</option>
-                        <option value="dr. Arief Pratama">dr. Arief Pratama</option>
-                        <option value="dr. Aya Putri">dr. Aya Putri</option>
-                        <option value="dr. Dimas Arjuna, Sp.A">dr. Dimas Arjuna, Sp.A</option>
-                        <option value="dr. Clara Wijaya, Sp.JP">dr. Clara Wijaya, Sp.JP</option>
+                    <select id="doctor" name="doctor" required disabled>
+                        <option value="">Pilih tanggal kunjungan terlebih dahulu</option>
                     </select>
+                    <small class="form-hint"><i class="fas fa-info-circle"></i> Dokter akan muncul setelah memilih tanggal</small>
                 </div>
 
                 <div class="payment-section">
@@ -295,6 +292,8 @@
         const IS_LOGGED_IN = <?php echo $isLoggedIn ? 'true' : 'false'; ?>;
         const USER_ID = <?php echo $isLoggedIn ? $_SESSION['user_id'] : '0'; ?>;
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
     <script src="../js/reservation.js"></script>
 </body>
 </html>

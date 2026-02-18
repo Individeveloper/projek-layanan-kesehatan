@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'includes/auth.php';
+require_once '../includes/auth.php';
 
 // Only doctors can access this page
 if (strpos($_SESSION['role'], 'doctor-') !== 0) {
@@ -8,7 +8,7 @@ if (strpos($_SESSION['role'], 'doctor-') !== 0) {
     exit;
 }
 
-require_once '../config/connection.php';
+require_once '../../config/connection.php';
 
 // Get doctor's polyclinic from role (e.g., 'doctor-umum' -> 'Poli Umum')
 $doctor_role = $_SESSION['role'];
@@ -167,8 +167,8 @@ $stats = [
     ")->fetch_assoc()['count'],
 ];
 
-include 'includes/header.php';
-include 'includes/sidebar.php';
+include '../includes/header.php';
+include '../includes/sidebar.php';
 ?>
 
 <!-- Doctor Polyclinic Info -->
@@ -711,5 +711,5 @@ window.onclick = function(event) {
 </script>
 
 <?php
-include 'includes/footer.php';
+include '../includes/footer.php';
 ?>

@@ -5,8 +5,8 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Check if user is admin or doctor (any specialization)
-if ($_SESSION['role'] !== 'admin' && strpos($_SESSION['role'], 'doctor-') !== 0) {
+// Only admin can access admin panel
+if ($_SESSION['role'] !== 'admin') {
     header('Location: login.php');
     exit;
 }

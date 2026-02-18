@@ -113,7 +113,7 @@ body {
 .hero {
     position: relative;
     height: 600px;
-    background-image: url('../assets/header-pic.jpg');
+    background-image: url('../assets/images/header-pic.jpg');
     background-size: cover;
     background-position: center;
     display: flex;
@@ -412,7 +412,7 @@ body {
 .registration-section {
     position: relative;
     padding: 100px 40px;
-    background-image: url('../assets/section-pic-2.jpg');
+    background-image: url('../assets/images/section-pic-2.jpg');
     background-size: cover;
     background-position: center;
     color: #ffffff;

@@ -12,6 +12,7 @@ let formData = {
     phone: '',
     email: '',
     poli: '',
+    poliId: '',
     complaint: '',
     visitDate: '',
     doctor: '',
@@ -20,11 +21,17 @@ let formData = {
     timestamp: ''
 };
 
+let availableSchedules = [];
+let flatpickrInstance = null;
+let quotaCache = {}; // Cache untuk menyimpan data kuota
+let disabledDates = []; // Array untuk tanggal yang disabled
+let availableDates = []; // Array untuk tanggal yang available
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
     generateMedicalRecord();
-    setMinDate();
+    initializeDatePicker();
 });
 
 // Initialize all event listeners
@@ -56,9 +63,328 @@ function initializeEventListeners() {
     if (poliSelect) {
         poliSelect.addEventListener('change', function() {
             formData.poli = this.value;
+            const selectedOption = this.options[this.selectedIndex];
+            formData.poliId = selectedOption.getAttribute('data-id');
             updatePoliDisplay();
+            loadSchedulesForPoli();
         });
     }
+
+    // Visit date change
+    const visitDateInput = document.getElementById('visitDate');
+    if (visitDateInput) {
+        visitDateInput.addEventListener('change', function() {
+            formData.visitDate = this.value;
+            if (formData.poliId) {
+                loadDoctorsByDate();
+            }
+        });
+    }
+}
+
+// Initialize Flatpickr Date Picker
+function initializeDatePicker() {
+    const visitDateInput = document.getElementById('visitDate');
+    if (!visitDateInput) return;
+
+    flatpickrInstance = flatpickr(visitDateInput, {
+        locale: 'id', // Bahasa Indonesia
+        minDate: 'today', // Tidak boleh pilih tanggal lampau
+        dateFormat: 'Y-m-d',
+        altInput: true,
+        altFormat: 'd F Y',
+        
+        // Disable dates berdasarkan data dari database
+        disable: [
+            function(date) {
+                const dateStr = formatDateToYMD(date);
+                
+                // Jika ada dalam disabledDates array, disable
+                if (disabledDates.includes(dateStr)) {
+                    return true;
+                }
+                
+                // Jika ada dalam availableDates, enable (return false)
+                const isAvailable = availableDates.some(d => d.date === dateStr);
+                if (isAvailable) {
+                    return false;
+                }
+                
+                // Default: disable jika tidak ada di available dates
+                // Tapi izinkan jika data belum di-load (untuk smooth UX)
+                if (availableDates.length === 0 && disabledDates.length === 0) {
+                    // Data belum di-load, izinkan sementara (akan di-update setelah load)
+                    const dayOfWeek = date.getDay();
+                    // Minimal disable weekend
+                    return dayOfWeek === 0 || dayOfWeek === 6;
+                }
+                
+                // Jika data sudah di-load tapi tanggal ini tidak ada, disable
+                return true;
+            }
+        ],
+
+        // Event saat user memilih tanggal
+        onChange: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length === 0) return;
+            
+            formData.visitDate = dateStr;
+            
+            // Check quota dan load doctors
+            if (formData.poliId) {
+                checkQuotaAndLoadDoctors(dateStr);
+            } else {
+                showQuotaInfo('warning', 'Silakan pilih poli terlebih dahulu');
+            }
+        },
+
+        onOpen: function(selectedDates, dateStr, instance) {
+            // Load available dates saat calendar dibuka
+            if (formData.poliId && availableDates.length === 0) {
+                loadAvailableDates();
+            }
+        },
+
+        onMonthChange: function(selectedDates, dateStr, instance) {
+            // Reload available dates saat bulan berubah
+            if (formData.poliId) {
+                loadAvailableDates(instance.currentYear, instance.currentMonth);
+            }
+        },
+
+        onReady: function(selectedDates, dateStr, instance) {
+            // Add tooltips to disabled dates
+            const calendarDays = instance.calendarContainer.querySelectorAll('.flatpickr-day');
+            
+            calendarDays.forEach(day => {
+                day.addEventListener('mouseenter', function() {
+                    if (this.classList.contains('flatpickr-disabled')) {
+                        const dateAttr = this.getAttribute('aria-label');
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'flatpickr-tooltip';
+                        
+                        // Check if it's weekend or no schedule
+                        const dayOfWeek = new Date(this.dateObj).getDay();
+                        if (dayOfWeek === 0 || dayOfWeek === 6) {
+                            tooltip.textContent = 'Tidak ada jadwal di hari Sabtu/Minggu';
+                        } else {
+                            tooltip.textContent = 'Tidak ada jadwal tersedia atau kuota penuh';
+                        }
+                        
+                        this.appendChild(tooltip);
+                        this._tooltip = tooltip;
+                    }
+                });
+
+                day.addEventListener('mouseleave', function() {
+                    if (this._tooltip) {
+                        this._tooltip.remove();
+                        this._tooltip = null;
+                    }
+                });
+            });
+        },
+
+        onMonthChange: function(selectedDates, dateStr, instance) {
+            // Reload tooltips after month change
+            const calendarDays = instance.calendarContainer.querySelectorAll('.flatpickr-day');
+            
+            calendarDays.forEach(day => {
+                day.addEventListener('mouseenter', function() {
+                    if (this.classList.contains('flatpickr-disabled')) {
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'flatpickr-tooltip';
+                        
+                        const dayOfWeek = new Date(this.dateObj).getDay();
+                        if (dayOfWeek === 0 || dayOfWeek === 6) {
+                            tooltip.textContent = 'Tidak ada jadwal di hari Sabtu/Minggu';
+                        } else {
+                            tooltip.textContent = 'Tidak ada jadwal tersedia atau kuota penuh';
+                        }
+                        
+                        this.appendChild(tooltip);
+                        this._tooltip = tooltip;
+                    }
+                });
+
+                day.addEventListener('mouseleave', function() {
+                    if (this._tooltip) {
+                        this._tooltip.remove();
+                        this._tooltip = null;
+                    }
+                });
+            });
+
+            // Reload available dates
+            if (formData.poliId) {
+                loadAvailableDates(instance.currentYear, instance.currentMonth);
+            }
+        }
+    });
+}
+
+// Format date to YYYY-MM-DD
+function formatDateToYMD(date) {
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+    return localDate.toISOString().split('T')[0];
+}
+
+// Check quota and load doctors for selected date
+async function checkQuotaAndLoadDoctors(dateStr) {
+    if (!formData.poliId || !dateStr) {
+        return;
+    }
+
+    try {
+        // Fetch quota info
+        const response = await fetch(`../../api/get_quota.php?polyclinic_id=${formData.poliId}&visit_date=${dateStr}`);
+        const data = await response.json();
+
+        if (data.success) {
+            const available = data.available;
+            quotaCache[dateStr] = available; // Update cache
+
+            if (available > 0) {
+                if (available <= 5) {
+                    showQuotaInfo('limited', `Hampir penuh! Tersisa ${available} slot`);
+                } else {
+                    showQuotaInfo('available', `Tersedia ${available} slot`);
+                }
+                // Load doctors untuk tanggal ini
+                loadDoctorsByDate();
+            } else {
+                showQuotaInfo('full', 'Maaf, kuota untuk tanggal ini sudah penuh');
+                // Clear tanggal selection
+                flatpickrInstance.clear();
+                formData.visitDate = '';
+                
+                // Disable doctor dropdown
+                const doctorSelect = document.getElementById('doctor');
+                if (doctorSelect) {
+                    doctorSelect.innerHTML = '<option value="">Pilih tanggal kunjungan terlebih dahulu</option>';
+                    doctorSelect.disabled = true;
+                }
+            }
+        } else {
+            showQuotaInfo('full', data.message || 'Tanggal tidak tersedia');
+            flatpickrInstance.clear();
+            formData.visitDate = '';
+        }
+    } catch (error) {
+        console.error('Error checking quota:', error);
+        showQuotaInfo('warning', 'Gagal mengecek ketersediaan. Silakan coba lagi.');
+    }
+}
+
+// Show quota info box
+function showQuotaInfo(type, message) {
+    const quotaInfoBox = document.getElementById('quota-info');
+    if (!quotaInfoBox) return;
+
+    quotaInfoBox.style.display = 'flex';
+    quotaInfoBox.className = 'quota-info-box ' + type;
+
+    let icon = '';
+    if (type === 'available') {
+        icon = '<i class="fas fa-check-circle"></i>';
+    } else if (type === 'limited') {
+        icon = '<i class="fas fa-exclamation-triangle"></i>';
+    } else if (type === 'full') {
+        icon = '<i class="fas fa-times-circle"></i>';
+    } else {
+        icon = '<i class="fas fa-info-circle"></i>';
+    }
+
+    quotaInfoBox.innerHTML = `
+        ${icon}
+        <div class="quota-text">
+            <strong>${type === 'available' ? 'Tersedia' : type === 'limited' ? 'Terbatas' : type === 'full' ? 'Penuh' : 'Info'}</strong>
+            <div>${message}</div>
+        </div>
+    `;
+}
+
+// Preload quota for current visible month
+async function preloadQuotaForMonth() {
+    // This function is now replaced by loadAvailableDates
+    if (formData.poliId) {
+        loadAvailableDates();
+    }
+}
+
+// Load available dates from API
+async function loadAvailableDates(year = null, month = null) {
+    if (!formData.poliId) return;
+
+    try {
+        // Show loading state
+        if (flatpickrInstance && flatpickrInstance.calendarContainer) {
+            flatpickrInstance.calendarContainer.classList.add('loading');
+        }
+
+        // Calculate date range (current month + 2 months ahead)
+        const today = new Date();
+        const startDate = new Date(year || today.getFullYear(), month !== null ? month : today.getMonth(), 1);
+        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 3, 0); // 3 months ahead
+
+        const startDateStr = formatDateToYMD(startDate);
+        const endDateStr = formatDateToYMD(endDate);
+
+        const response = await fetch(`../../api/get_available_dates.php?polyclinic_id=${formData.poliId}&start_date=${startDateStr}&end_date=${endDateStr}`);
+        const data = await response.json();
+
+        if (data.success) {
+            availableDates = data.available_dates;
+            disabledDates = data.disabled_dates;
+
+            // Update quota cache
+            availableDates.forEach(dateInfo => {
+                quotaCache[dateInfo.date] = dateInfo.available;
+            });
+
+            disabledDates.forEach(dateStr => {
+                quotaCache[dateStr] = 0;
+            });
+
+            // Redraw flatpickr calendar dengan data baru
+            if (flatpickrInstance) {
+                flatpickrInstance.redraw();
+            }
+
+            console.log('Available dates loaded:', availableDates.length);
+            console.log('Disabled dates:', disabledDates.length);
+
+            // Show message if no available dates
+            if (availableDates.length === 0) {
+                showQuotaInfo('warning', 'Tidak ada jadwal tersedia untuk poli ini dalam 3 bulan ke depan. Silakan hubungi rumah sakit untuk informasi lebih lanjut.');
+            }
+        } else {
+            console.error('Failed to load available dates:', data.message);
+            // Jika tidak ada jadwal sama sekali
+            availableDates = [];
+            disabledDates = [];
+            showQuotaInfo('full', data.message || 'Tidak ada jadwal tersedia untuk poli ini');
+        }
+    } catch (error) {
+        console.error('Error loading available dates:', error);
+        showQuotaInfo('warning', 'Gagal memuat jadwal. Silakan coba lagi.');
+    } finally {
+        // Remove loading state
+        if (flatpickrInstance && flatpickrInstance.calendarContainer) {
+            flatpickrInstance.calendarContainer.classList.remove('loading');
+        }
+    }
+}
+
+// Set minimum date to today for visit date (Legacy - replaced by Flatpickr)
+function setMinDate() {
+    // This function is now handled by Flatpickr
+}
+
+// Disable weekends (Saturday and Sunday) (Legacy - replaced by Flatpickr)
+function disableWeekends() {
+    // This function is now handled by Flatpickr
 }
 
 // Toggle between new and existing patient
@@ -90,13 +416,112 @@ function generateMedicalRecord() {
     }
 }
 
-// Set minimum date to today for visit date
-function setMinDate() {
+// Load schedules for selected polyclinic
+function loadSchedulesForPoli() {
+    if (!formData.poliId) {
+        return;
+    }
+
+    // Reset doctor dropdown when poli changes
+    const doctorSelect = document.getElementById('doctor');
+    if (doctorSelect) {
+        doctorSelect.innerHTML = '<option value="">Pilih tanggal kunjungan terlebih dahulu</option>';
+        doctorSelect.disabled = true;
+    }
+
+    // Reset visit date
     const visitDateInput = document.getElementById('visitDate');
     if (visitDateInput) {
-        const today = new Date().toISOString().split('T')[0];
-        visitDateInput.setAttribute('min', today);
+        if (flatpickrInstance) {
+            flatpickrInstance.clear();
+        } else {
+            visitDateInput.value = '';
+        }
+        formData.visitDate = '';
     }
+
+    // Hide quota info
+    const quotaInfoBox = document.getElementById('quota-info');
+    if (quotaInfoBox) {
+        quotaInfoBox.style.display = 'none';
+    }
+
+    // Clear quota cache for new poli
+    quotaCache = {};
+    availableDates = [];
+    disabledDates = [];
+
+    // Fetch schedules for the polyclinic
+    fetch(`../../api/get_schedules.php?polyclinic_id=${formData.poliId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                availableSchedules = data.data;
+                console.log('Loaded schedules:', availableSchedules);
+                
+                // Load available dates untuk update calendar
+                loadAvailableDates();
+            } else {
+                console.error('Failed to load schedules');
+                availableSchedules = [];
+            }
+        })
+        .catch(error => {
+            console.error('Error loading schedules:', error);
+            availableSchedules = [];
+        });
+}
+
+// Load doctors based on selected date
+function loadDoctorsByDate() {
+    if (!formData.visitDate || !formData.poliId) {
+        return;
+    }
+
+    // Get day name in Indonesian
+    const selectedDate = new Date(formData.visitDate);
+    const dayOfWeek = selectedDate.getDay();
+    
+    // Check if weekend (should not happen due to validation)
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+        return;
+    }
+
+    const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const indonesianDay = dayNames[dayOfWeek];
+
+    // Fetch schedule for specific date
+    fetch(`../../api/get_schedules.php?polyclinic_id=${formData.poliId}&visit_date=${formData.visitDate}`)
+        .then(response => response.json())
+        .then(data => {
+            const doctorSelect = document.getElementById('doctor');
+            
+            if (data.success && data.data.length > 0) {
+                // Clear and populate doctor dropdown
+                doctorSelect.innerHTML = '<option value="">-- Pilih Dokter --</option>';
+                
+                data.data.forEach(schedule => {
+                    const option = document.createElement('option');
+                    option.value = schedule.doctor_name;
+                    option.textContent = `${schedule.doctor_name} (${schedule.start_time} - ${schedule.end_time})`;
+                    option.setAttribute('data-schedule-id', schedule.id);
+                    doctorSelect.appendChild(option);
+                });
+                
+                doctorSelect.disabled = false;
+            } else {
+                // No schedule available for this date
+                doctorSelect.innerHTML = '<option value="">Tidak ada jadwal dokter pada tanggal ini</option>';
+                doctorSelect.disabled = true;
+                alert(`Maaf, tidak ada jadwal ${formData.poli} pada hari ${indonesianDay}. Silakan pilih tanggal lain.`);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading doctors:', error);
+            const doctorSelect = document.getElementById('doctor');
+            doctorSelect.innerHTML = '<option value="">Gagal memuat data dokter</option>';
+            doctorSelect.disabled = true;
+        });
 }
 
 // Update poli display in step 3
@@ -172,7 +597,12 @@ function updateStepper(activeStep) {
         if (stepNum < activeStep) {
             step.classList.add('completed');
         } else if (stepNum === activeStep) {
-            step.classList.add('active');
+            // Step 4 adalah step terakhir (selesai), maka beri class completed juga
+            if (activeStep === 4) {
+                step.classList.add('completed');
+            } else {
+                step.classList.add('active');
+            }
         }
     });
 }
@@ -263,6 +693,9 @@ function saveStepData(stepNumber) {
     } else if (stepNumber === 2) {
         // Save poli selection
         formData.poli = document.getElementById('poli').value;
+        const poliSelect = document.getElementById('poli');
+        const selectedOption = poliSelect.options[poliSelect.selectedIndex];
+        formData.poliId = selectedOption.getAttribute('data-id');
         updatePoliDisplay();
 
     } else if (stepNumber === 3) {
@@ -345,7 +778,7 @@ function submitToBackend() {
     submitBtn.textContent = 'Memproses...';
     submitBtn.disabled = true;
 
-    fetch('../../config/process_reservation.php', {
+    fetch('../../handlers/process_reservation.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

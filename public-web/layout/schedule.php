@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-// Redirect admin and doctor to admin panel
-if (isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || strpos($_SESSION['role'], 'doctor-') === 0)) {
-    header('Location: ../../admin-panel/index.php');
+// Redirect admin to admin panel
+if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+    header('Location: ../../admin-panel/pages/index.php');
     exit;
 }
 
@@ -109,7 +109,7 @@ $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
         <div class="footer-container">
             <div class="footer-grid">
                 <div class="footer-logo">
-                    <img src="../assets/logo.png" alt="Heartlink Hospital">
+                    <img src="../assets/images/logo.png" alt="Heartlink Hospital">
                 </div>
                 <div class="footer-links">
                     <h4>Tautan Cepat</h4>

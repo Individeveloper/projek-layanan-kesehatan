@@ -4,7 +4,7 @@ session_start();
 // Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
     if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-        header('Location: ../../admin-panel/index.php');
+        header('Location: ../../admin-panel/pages/index.php');
     } else {
         header('Location: main.php');
     }
@@ -26,7 +26,7 @@ if (isset($_SESSION['user_id'])) {
         <!-- Left Side - Form -->
         <div class="login-form-section">
             <div class="logo-container">
-                <img src="../assets/logo.png" alt="Heartlink Hospital Logo">
+                <img src="../assets/images/logo.png" alt="Heartlink Hospital Logo">
             </div>
 
             <div class="welcome-text">
@@ -52,6 +52,7 @@ if (isset($_SESSION['user_id'])) {
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
+                    
                     <a href="#" class="forgot-password">Lupa password?</a>
                 </div>
 
@@ -93,7 +94,7 @@ if (isset($_SESSION['user_id'])) {
         const messageDiv = document.getElementById('message');
         
         try {
-            const response = await fetch('../../config/login.php', {
+            const response = await fetch('../../handlers/auth/login.php', {
                 method: 'POST',
                 body: formData
             });
@@ -108,7 +109,7 @@ if (isset($_SESSION['user_id'])) {
                 setTimeout(() => {
                     // Redirect based on user role
                     if (data.user.role === 'admin') {
-                        window.location.href = '../../admin-panel/index.php';
+                        window.location.href = '../../admin-panel/pages/index.php';
                     } else {
                         window.location.href = 'main.php';
                     }

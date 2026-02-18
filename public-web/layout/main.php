@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-// Redirect admin and doctor to admin panel
-if (isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || strpos($_SESSION['role'], 'doctor-') === 0)) {
-    header('Location: ../../admin-panel/index.php');
+// Redirect admin to admin panel
+if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+    header('Location: ../../admin-panel/pages/index.php');
     exit;
 }
 $doctors = [
@@ -100,7 +100,7 @@ $doctors = [
     <section class="trust-section" id="tentang">
         <div class="trust-container">
             <div class="trust-image">
-                <img src="../assets/section-pic-1.jpg" alt="Dokter dengan Pasien">
+                <img src="../assets/images/section-pic-1.jpg" alt="Dokter dengan Pasien">
             </div>
             <div class="trust-content">
                 <h2>Percayakan Kesehatan Anda pada Heartlink Hospital</h2>
@@ -182,25 +182,22 @@ $doctors = [
         <div class="footer-container">
             <div class="footer-grid">
                 <div class="footer-logo">
-                    <img src="../assets/logo.png" alt="Heartlink Hospital">
+                    <img src="../assets/images/logo.png" alt="Heartlink Hospital">
                 </div>
                 <div class="footer-links">
                     <h4>Tautan Cepat</h4>
                     <ul>
-                        <li><a href="#care">Cari Spesialis</a></li>
-                        <li><a href="#jadwal">Jadwal Praktik</a></li>
-                        <li><a href="#pendaftaran">Pendaftaran Online</a></li>
-                        <li><a href="#informasi">Informasi Kamar</a></li>
-                        <li><a href="#tarif">Tarif & Pembayaran</a></li>
-                        <li><a href="#artikel">Artikel Kesehatan</a></li>
-                        <li><a href="#karir">Karir di Heartlink</a></li>
+                        <li><a href="main.php">Beranda</a></li>
+                        <li><a href="about.php">Tentang Kami</a></li>
+                        <li><a href="schedule.php">Jadwal Poli</a></li>
+                        <li><a href="<?php echo isset($_SESSION['user_id']) ? 'reservation.php' : 'login.php'; ?>">Reservasi Online</a></li>
                     </ul>
                 </div>
                 <div class="footer-contact">
                     <h4>Kontak & Lokasi</h4>
                     <ul>
                         <li><strong>Alamat:</strong></li>
-                        <li>Jl. Kesehatan No. 123,</li>
+                        <li>Jl. Gatot Subroto No. 123,</li>
                         <li>Jakarta Pusat 10110</li>
                         <li><strong>Telepon:</strong> (021) 1234-5678</li>
                         <li><strong>Whatsapp:</strong> 0811-2233-4455</li>

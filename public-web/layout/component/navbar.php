@@ -1,7 +1,7 @@
 <header class="navbar">
         <nav class="nav-container">
             <div class="nav-logo">
-                <a href="main.php"><img src="../assets/logo.png" alt="Heartlink Hospital"></a>
+                <a href="main.php"><img src="../assets/images/logo.png" alt="Heartlink Hospital"></a>
             </div>
             <ul class="nav-menu">
                 <li><a href="main.php">Beranda</a></li>

@@ -231,7 +231,7 @@ body {
 /* Right Side - Background Image */
 .register-image-section {
     flex: 1;
-    background-image: url('../assets/background-picture.jpg');
+    background-image: url('../assets/images/background-picture.jpg');
     background-size: cover;
     background-position: center;
     position: relative;

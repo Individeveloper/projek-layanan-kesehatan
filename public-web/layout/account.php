@@ -7,9 +7,9 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Redirect admin and doctor to their respective dashboards
-if (isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || strpos($_SESSION['role'], 'doctor-') === 0)) {
-    header('Location: ../../admin-panel/index.php');
+// Redirect admin to admin panel
+if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+    header('Location: ../../admin-panel/pages/index.php');
     exit;
 }
 
@@ -42,6 +42,34 @@ $user_email = $user['email'];
 $user_name = $user['name'];
 $user_role = $user['role'];
 $user_created = date('d F Y', strtotime($user['created_at']));
+
+// Get user's reservations
+$reservations_query = "
+    SELECT 
+        r.id,
+        r.reservation_date,
+        r.queue_number,
+        r.status,
+        r.created_at,
+        p.full_name as patient_name,
+        po.name as polyclinic_name,
+        ps.day_of_week,
+        ps.start_time,
+        ps.end_time
+    FROM reservations r
+    LEFT JOIN patients p ON r.patient_id = p.id
+    LEFT JOIN polyclinic_schedules ps ON r.polyclinic_schedule_id = ps.id
+    LEFT JOIN polyclinics po ON ps.polyclinic_id = po.id
+    WHERE r.user_id = ?
+    ORDER BY r.created_at DESC
+    LIMIT 10
+";
+
+$stmt = $db->prepare($reservations_query);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$reservations_result = $stmt->get_result();
+$stmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -61,7 +89,7 @@ $user_created = date('d F Y', strtotime($user['created_at']));
                 <i class="fas fa-arrow-left"></i>
                 Kembali
             </a>
-            <a href="../../config/logout.php" class="logout-btn">
+            <a href="../../handlers/auth/logout.php" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i> Keluar
             </a>
         </nav>
@@ -136,6 +164,114 @@ $user_created = date('d F Y', strtotime($user['created_at']));
                 <h4>Tentang Kami</h4>
                 <p>Informasi tentang rumah sakit</p>
             </a>
+        </div>
+
+        <!-- Reservation History -->
+        <div class="reservation-history">
+            <div class="section-header">
+                <h3><i class="fas fa-history"></i> Riwayat Reservasi</h3>
+                <p>10 reservasi terakhir Anda</p>
+            </div>
+
+            <?php if ($reservations_result->num_rows > 0): ?>
+                <div class="reservations-list">
+                    <?php while ($reservation = $reservations_result->fetch_assoc()): ?>
+                        <?php
+                        $status = $reservation['status'];
+                        $status_labels = [
+                            'pending' => 'Menunggu',
+                            'confirmed' => 'Dikonfirmasi',
+                            'completed' => 'Selesai',
+                            'cancelled' => 'Dibatalkan'
+                        ];
+                        $status_label = $status_labels[$status] ?? ucfirst($status);
+                        
+                        $status_icons = [
+                            'pending' => 'fa-clock',
+                            'confirmed' => 'fa-check-circle',
+                            'completed' => 'fa-check-double',
+                            'cancelled' => 'fa-times-circle'
+                        ];
+                        $status_icon = $status_icons[$status] ?? 'fa-info-circle';
+                        ?>
+                        
+                        <div class="reservation-item">
+                            <div class="reservation-header">
+                                <div class="queue-badge">
+                                    <i class="fas fa-hashtag"></i>
+                                    <span><?php echo str_pad($reservation['queue_number'], 3, '0', STR_PAD_LEFT); ?></span>
+                                </div>
+                                <span class="reservation-status status-<?php echo $status; ?>">
+                                    <i class="fas <?php echo $status_icon; ?>"></i>
+                                    <?php echo $status_label; ?>
+                                </span>
+                            </div>
+                            
+                            <div class="reservation-body">
+                                <div class="reservation-info">
+                                    <div class="info-row">
+                                        <i class="fas fa-user"></i>
+                                        <div>
+                                            <small>Nama Pasien</small>
+                                            <strong><?php echo htmlspecialchars($reservation['patient_name']); ?></strong>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="info-row">
+                                        <i class="fas fa-clinic-medical"></i>
+                                        <div>
+                                            <small>Poliklinik</small>
+                                            <strong><?php echo htmlspecialchars($reservation['polyclinic_name']); ?></strong>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="info-row">
+                                        <i class="fas fa-calendar"></i>
+                                        <div>
+                                            <small>Tanggal Kunjungan</small>
+                                            <strong>
+                                                <?php 
+                                                $date = date_create($reservation['reservation_date']);
+                                                echo date_format($date, 'd F Y'); 
+                                                ?>
+                                            </strong>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="info-row">
+                                        <i class="fas fa-clock"></i>
+                                        <div>
+                                            <small>Jam Praktek</small>
+                                            <strong>
+                                                <?php 
+                                                echo date('H:i', strtotime($reservation['start_time'])) . ' - ' . 
+                                                     date('H:i', strtotime($reservation['end_time'])); 
+                                                ?>
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="reservation-meta">
+                                    <small>
+                                        <i class="fas fa-calendar-plus"></i>
+                                        Dibuat: <?php echo date('d/m/Y H:i', strtotime($reservation['created_at'])); ?>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                </div>
+            <?php else: ?>
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <h4>Belum Ada Reservasi</h4>
+                    <p>Anda belum memiliki riwayat reservasi.</p>
+                    <a href="reservation.php" class="btn-primary">
+                         Buat Reservasi Sekarang
+                    </a>
+                </div>
+            <?php endif; ?>
         </div>
     </main>
 

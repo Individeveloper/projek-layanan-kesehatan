@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'includes/auth.php';
-require_once '../config/connection.php';
+require_once '../includes/auth.php';
+require_once '../../config/connection.php';
 
 $page_title = 'Kelola Jadwal';
 $message = '';
@@ -87,8 +87,8 @@ $schedules = $db->query("
 // Get polyclinics for dropdown
 $polyclinics = $db->query("SELECT * FROM polyclinics ORDER BY name");
 
-include 'includes/header.php';
-include 'includes/sidebar.php';
+include '../includes/header.php';
+include '../includes/sidebar.php';
 ?>
 
 <?php if ($message): ?>
@@ -288,4 +288,4 @@ function deleteSchedule(id) {
 }
 </script>
 
-<?php include 'includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?>

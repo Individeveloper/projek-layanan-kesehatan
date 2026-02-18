@@ -16,7 +16,7 @@ session_start();
         <!-- Left Side - Form -->
         <div class="register-form-section">
             <div class="logo-container">
-                <img src="../assets/logo.png" alt="Heartlink Hospital Logo">
+                <img src="../assets/images/logo.png" alt="Heartlink Hospital Logo">
             </div>
 
             <div class="welcome-text">
@@ -118,7 +118,7 @@ session_start();
         const formData = new FormData(this);
         
         try {
-            const response = await fetch('../../config/register.php', {
+            const response = await fetch('../../handlers/auth/register.php', {
                 method: 'POST',
                 body: formData
             });

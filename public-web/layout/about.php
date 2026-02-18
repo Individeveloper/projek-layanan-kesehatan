@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-// Redirect admin and doctor to admin panel
-if (isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || strpos($_SESSION['role'], 'doctor-') === 0)) {
-    header('Location: ../../admin-panel/index.php');
+// Redirect admin to admin panel
+if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+    header('Location: ../../admin-panel/pages/index.php');
     exit;
 }
 ?>
@@ -24,7 +24,7 @@ if (isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || strpos($_SESSI
     <!-- Hero Section -->
     <section class="about-hero">
         <div class="hero-foreground-img">
-            <img src="../assets/about-asset2.png" alt="Heartlink Hospital Building">
+            <img src="../assets/images/about-asset2.png" alt="Heartlink Hospital Building">
         </div>
         <div class="about-hero-overlay"></div>
         <div class="about-hero-content">
@@ -42,7 +42,7 @@ if (isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || strpos($_SESSI
     <section class="visi-misi-section">
         <div class="visi-misi-container">
             <div class="visi-misi-image">
-                <img src="../assets/about-asset3.png" alt="Dokter dengan pasien">
+                <img src="../assets/images/about-asset3.png" alt="Dokter dengan pasien">
             </div>
             <div class="visi-misi-content">
                 <h3>Visi</h3>
@@ -99,7 +99,7 @@ if (isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || strpos($_SESSI
         <div class="footer-container">
             <div class="footer-grid">
                 <div class="footer-logo">
-                    <img src="../assets/logo.png" alt="Heartlink Hospital">
+                    <img src="../assets/images/logo.png" alt="Heartlink Hospital">
                 </div>
                 <div class="footer-links">
                     <h4>Tautan Cepat</h4>
