@@ -6,14 +6,14 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #F9FAFB;
+    background-color: #F5F6F8;
     color: #1F2937;
 }
 
 /* Header */
 .account-header {
     background-color: #FFFFFF;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #E5E7EB;
     padding: 1rem 0;
     position: sticky;
     top: 0;
@@ -33,32 +33,36 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: #3B4C94;
+    color: #374151;
     font-weight: 500;
     text-decoration: none;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-    transition: background-color 0.3s;
+    border: 1px solid #E5E7EB;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .back-btn:hover {
-    background-color: #E6EBFF;
+    background-color: #F3F4F6;
+    border-color: #D1D5DB;
 }
 
 .logout-btn {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: #DC2626;
+    color: #B91C1C;
     font-weight: 500;
     text-decoration: none;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-    transition: background-color 0.3s;
+    border: 1px solid #FECACA;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .logout-btn:hover {
-    background-color: #FEE2E2;
+    background-color: #FEF2F2;
+    border-color: #FCA5A5;
 }
 
 /* Main Content */
@@ -87,7 +91,7 @@ body {
 .profile-card {
     background-color: #FFFFFF;
     border-radius: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    border: 1px solid #E5E7EB;
     padding: 2rem;
     margin-bottom: 1.5rem;
 }
@@ -102,13 +106,14 @@ body {
 .profile-avatar {
     width: 96px;
     height: 96px;
-    background: linear-gradient(135deg, #3B4C94 0%, #5A81FA 100%);
+    background: #F3F4F6;
+    border: 1px solid #E5E7EB;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2.5rem;
-    color: #FFFFFF;
+    color: #4B5563;
 }
 
 .profile-info h2 {
@@ -176,15 +181,15 @@ body {
 .action-card {
     background-color: #FFFFFF;
     border-radius: 0.75rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    border: 1px solid #E5E7EB;
     padding: 1.5rem;
     text-decoration: none;
-    transition: all 0.3s;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .action-card:hover {
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
+    border-color: #D1D5DB;
+    background-color: #FAFAFA;
 }
 
 .action-icon {
@@ -199,18 +204,18 @@ body {
 }
 
 .action-icon.blue {
-    background-color: #DBEAFE;
-    color: #3B4C94;
+    background-color: #EFF6FF;
+    color: #1D4ED8;
 }
 
 .action-icon.green {
-    background-color: #D1FAE5;
-    color: #059669;
+    background-color: #ECFDF5;
+    color: #047857;
 }
 
 .action-icon.purple {
-    background-color: #E9D5FF;
-    color: #7C3AED;
+    background-color: #F5F3FF;
+    color: #6D28D9;
 }
 
 .action-card h4 {
@@ -229,7 +234,7 @@ body {
 .reservation-history {
     background-color: #FFFFFF;
     border-radius: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    border: 1px solid #E5E7EB;
     padding: 2rem;
     margin-top: 2rem;
 }
@@ -249,7 +254,7 @@ body {
 }
 
 .section-header h3 i {
-    color: #3B4C94;
+    color: #4B5563;
 }
 
 .section-header p {
@@ -264,31 +269,30 @@ body {
 }
 
 .reservation-item {
-    border: 2px solid #E5E7EB;
+    border: 1px solid #E5E7EB;
     border-radius: 0.75rem;
     overflow: hidden;
-    transition: all 0.3s;
+    transition: border-color 0.2s ease;
 }
 
 .reservation-item:hover {
-    border-color: #3B4C94;
-    box-shadow: 0 4px 12px rgba(59, 76, 148, 0.1);
+    border-color: #D1D5DB;
 }
 
 .reservation-header {
-    background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+    background: #F9FAFB;
     padding: 1rem 1.25rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 2px solid #E5E7EB;
+    border-bottom: 1px solid #E5E7EB;
 }
 
 .queue-badge {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: #3B4C94;
+    background-color: #111827;
     color: #FFFFFF;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
@@ -352,7 +356,7 @@ body {
 }
 
 .info-row i {
-    color: #3B4C94;
+    color: #6B7280;
     font-size: 1.125rem;
     margin-top: 0.25rem;
     flex-shrink: 0;
@@ -396,8 +400,8 @@ body {
 .empty-state {
     text-align: center;
     padding: 4rem 2rem;
-    background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
-    border: 2px dashed #E5E7EB;
+    background: #FAFAFA;
+    border: 1px dashed #D1D5DB;
     border-radius: 1rem;
 }
 
@@ -405,16 +409,6 @@ body {
     font-size: 5rem;
     color: #D1D5DB;
     margin-bottom: 1.5rem;
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 0.6;
-    }
-    50% {
-        opacity: 1;
-    }
 }
 
 .empty-state h4 {
@@ -435,28 +429,24 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    background: linear-gradient(135deg, #3B4C94 0%, #5A81FA 100%);
+    background: #111827;
     color: #FFFFFF;
     padding: 1rem 2rem;
     border-radius: 0.75rem;
     text-decoration: none;
     font-weight: 600;
     font-size: 1rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(59, 76, 148, 0.2);
+    transition: background-color 0.2s ease;
     border: none;
     cursor: pointer;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #2D3A70 0%, #3B4C94 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(59, 76, 148, 0.35);
+    background: #1F2937;
 }
 
 .btn-primary:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(59, 76, 148, 0.2);
+    background: #0F172A;
 }
 
 .btn-primary i {
@@ -465,7 +455,7 @@ body {
 
 /* Footer */
 .account-footer {
-    background-color: #111827;
+    background-color: #0F172A;
     color: #FFFFFF;
     padding: 2rem 0;
     margin-top: 4rem;

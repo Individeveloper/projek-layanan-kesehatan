@@ -120,7 +120,8 @@
     background: #FFFFFF;
     border-radius: 16px;
     padding: 40px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #E6EBFF;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
 .form-title {
@@ -166,8 +167,7 @@
 
 .status-card:hover {
     border-color: #5B7FDB;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(91, 127, 219, 0.15);
+    box-shadow: 0 2px 8px rgba(91, 127, 219, 0.1);
 }
 
 .status-card.active {
@@ -554,8 +554,7 @@ input[type="date"]:focus:invalid {
 
 .payment-card:hover {
     border-color: #5B7FDB;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(91, 127, 219, 0.15);
+    box-shadow: 0 2px 8px rgba(91, 127, 219, 0.1);
 }
 
 .payment-card.active {
@@ -641,8 +640,7 @@ input[type="date"]:focus:invalid {
 
 .btn-primary:hover {
     background: #1F2461;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(43, 48, 138, 0.3);
+    box-shadow: 0 2px 8px rgba(43, 48, 138, 0.2);
 }
 
 .btn-secondary {
@@ -683,7 +681,8 @@ input[type="date"]:focus:invalid {
     background: #FFFFFF;
     border-radius: 16px;
     padding: 50px 40px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #E6EBFF;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
     text-align: center;
 }
 
@@ -711,7 +710,7 @@ input[type="date"]:focus:invalid {
 
 /* Queue Card */
 .queue-card {
-    background: linear-gradient(180deg, #2B308A 0%, #5B7FDB 100%);
+    background: #2B308A;
     border-radius: 16px;
     padding: 30px;
     margin-bottom: 30px;
@@ -784,7 +783,7 @@ input[type="date"]:focus:invalid {
 }
 
 .flatpickr-months {
-    background: linear-gradient(135deg, #2B308A 0%, #3B4C94 100%);
+    background: #2B308A;
     padding: 16px;
     border-radius: 16px 16px 0 0;
 }
@@ -840,11 +839,11 @@ input[type="date"]:focus:invalid {
 
 .flatpickr-day.selected,
 .flatpickr-day.selected:hover {
-    background: linear-gradient(135deg, #2B308A 0%, #3B4C94 100%);
+    background: #2B308A;
     border-color: transparent;
     color: #FFFFFF;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(43, 48, 138, 0.3);
+    box-shadow: 0 2px 8px rgba(43, 48, 138, 0.2);
 }
 
 .flatpickr-day.today {
@@ -860,7 +859,7 @@ input[type="date"]:focus:invalid {
 }
 
 .flatpickr-day.today.selected {
-    background: linear-gradient(135deg, #2B308A 0%, #3B4C94 100%);
+    background: #2B308A;
     border: none;
     color: #FFFFFF;
 }
@@ -997,7 +996,7 @@ input[type="date"]:focus:invalid {
     bottom: 120%;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(135deg, #2B308A 0%, #3B4C94 100%);
+    background: #2B308A;
     color: #FFFFFF;
     padding: 8px 12px;
     border-radius: 8px;
@@ -1016,7 +1015,7 @@ input[type="date"]:focus:invalid {
     left: 50%;
     transform: translateX(-50%);
     border: 6px solid transparent;
-    border-top-color: #3B4C94;
+    border-top-color: #2B308A;
 }
 
 @keyframes tooltipFadeIn {
@@ -1034,11 +1033,28 @@ input[type="date"]:focus:invalid {
 @media (max-width: 768px) {
     .reservation-container {
         padding: 30px 15px 60px;
+        max-width: 100%;
     }
 
     .progress-stepper {
-        padding: 0 10px;
+        padding: 0 6px;
         margin-bottom: 40px;
+        overflow-x: auto;
+        justify-content: flex-start;
+        scrollbar-width: thin;
+    }
+
+    .progress-stepper::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .progress-stepper::-webkit-scrollbar-thumb {
+        background: #CBD5E1;
+        border-radius: 999px;
+    }
+
+    .step {
+        min-width: 84px;
     }
 
     .step-circle {
@@ -1093,6 +1109,11 @@ input[type="date"]:focus:invalid {
 }
 
 @media (max-width: 480px) {
+    .form-card,
+    .success-card {
+        padding: 22px 16px;
+    }
+
     .step-label {
         display: none;
     }

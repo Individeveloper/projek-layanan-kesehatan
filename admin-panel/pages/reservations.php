@@ -45,6 +45,7 @@ $query = "
            p.nik, 
            p.phone_number,
            po.name as polyclinic_name,
+            ps.doctor_name,
            u.name as user_name,
            u.email as user_email
     FROM reservations r
@@ -264,7 +265,7 @@ function viewReservation(reservation) {
             </div>
             <div class="detail-item">
                 <label>Tanggal Kunjungan</label>
-                <p>${new Date(reservation.visit_date).toLocaleDateString('id-ID')}</p>
+                <p>${new Date(reservation.reservation_date).toLocaleDateString('id-ID')}</p>
             </div>
             <div class="detail-item">
                 <label>Keluhan</label>

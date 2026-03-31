@@ -33,6 +33,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 15px 20px;
+    position: relative;
 }
 
 .nav-logo {
@@ -594,12 +595,14 @@ body {
         display: flex;
         position: absolute;
         top: 80px;
-        left: 0;
-        right: 0;
+        left: 20px;
+        right: 20px;
         background: #ffffff;
         flex-direction: column;
         padding: 16px 20px;
         gap: 8px;
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
         box-shadow: 0 8px 30px rgba(0,0,0,0.08);
         z-index: 999;
     }
@@ -635,6 +638,11 @@ body {
         margin-right: 20px;
     }
 
+    .hero {
+        margin: 20px;
+        height: 520px;
+    }
+
     .hero-content h1 {
         font-size: 36px;
     }
@@ -642,6 +650,10 @@ body {
     .services-grid,
     .doctors-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .service-card {
+        padding: 18px 20px;
     }
 
     .trust-container {
@@ -655,6 +667,20 @@ body {
 }
 
 @media (max-width: 576px) {
+    .nav-container {
+        padding: 12px 14px;
+    }
+
+    .nav-logo img {
+        height: 42px;
+    }
+
+    .hero {
+        margin: 14px;
+        height: 430px;
+        border-radius: 14px;
+    }
+
     .hero-content h1 {
         font-size: 28px;
     }
@@ -670,20 +696,27 @@ body {
         gap: 20px;
     }
 
-    .service-card,
-    .doctor-card {
-        flex-direction: row;
-        align-items: center;
+    .service-card {
         padding: 15px;
     }
 
-    .service-icon,
-    .doctor-image {
+    .service-icon {
         margin-right: 15px;
+    }
+
+    .doctor-image {
+        height: 240px;
     }
 
     .service-card h3,
     .doctor-info h3 {
         font-size: 16px;
+    }
+
+    .registration-section,
+    .whatsapp-section {
+        margin-left: 14px;
+        margin-right: 14px;
+        border-radius: 14px;
     }
 }

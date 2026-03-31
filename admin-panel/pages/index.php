@@ -1,9 +1,12 @@
 <?php
 session_start();
+$allowed_roles = ['admin', 'doctor'];
 require_once '../includes/auth.php';
 require_once '../../config/connection.php';
 
 $page_title = 'Dashboard';
+$role = $_SESSION['role'] ?? '';
+$is_doctor = ($role === 'doctor' || strpos($role, 'doctor-') === 0);
 
 // Get admin statistics
 $stats = [];
@@ -111,9 +114,11 @@ include '../includes/sidebar.php';
 <div class="card">
     <div class="card-header">
         <h2><i class="fas fa-list-ol"></i> Antrian Terbaru</h2>
-        <a href="reservations.php" class="btn btn-sm btn-primary">
-            <i class="fas fa-eye"></i> Lihat Semua Antrian
-        </a>
+        <?php if (!$is_doctor): ?>
+            <a href="reservations.php" class="btn btn-sm btn-primary">
+                <i class="fas fa-eye"></i> Lihat Semua Antrian
+            </a>
+        <?php endif; ?>
     </div>
     <div class="card-body">
         <div class="table-responsive">

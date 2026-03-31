@@ -88,6 +88,7 @@ $stmt->close();
 
 echo json_encode([
     'success' => true,
-    'data' => $schedules
+    'data' => $schedules,
+    'schedules' => $schedules
 ]);
 ?>

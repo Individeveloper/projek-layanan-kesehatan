@@ -2,12 +2,6 @@
 session_start();
 require_once '../includes/auth.php';
 
-// Only admin can access this page
-if ($_SESSION['role'] !== 'admin') {
-    header('Location: index.php');
-    exit;
-}
-
 require_once '../../config/connection.php';
 
 $page_title = 'Kelola Poliklinik & Jadwal';
@@ -378,14 +372,18 @@ function loadSchedules(polyclinicId) {
     const scheduleList = document.getElementById('scheduleList');
     scheduleList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Loading jadwal...</p>';
     
-    fetch(`../api/get_schedules.php?polyclinic_id=${polyclinicId}`)
+    fetch(`../../api/get_schedules.php?polyclinic_id=${polyclinicId}`)
         .then(response => response.json())
         .then(data => {
-            if (data.schedules && data.schedules.length > 0) {
+            const schedules = Array.isArray(data.data)
+                ? data.data
+                : (Array.isArray(data.schedules) ? data.schedules : []);
+
+            if (data.success && schedules.length > 0) {
                 let html = '<div class="table-responsive"><table class="table table-sm">';
                 html += '<thead><tr><th>Hari</th><th>Jam</th><th>Kuota</th><th style="width: 100px;">Aksi</th></tr></thead><tbody>';
                 
-                data.schedules.forEach(schedule => {
+                schedules.forEach(schedule => {
                     html += `<tr>
                         <td><strong>${schedule.day_of_week}</strong></td>
                         <td>${schedule.start_time.substring(0,5)} - ${schedule.end_time.substring(0,5)}</td>

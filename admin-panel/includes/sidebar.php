@@ -1,3 +1,7 @@
+        <?php
+        $role = $_SESSION['role'] ?? '';
+        $is_doctor = ($role === 'doctor' || strpos($role, 'doctor-') === 0);
+        ?>
         <aside class="sidebar">
             <div class="sidebar-header">
                 <i class="fas fa-hospital"></i>
@@ -9,19 +13,21 @@
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
-                
-                <a href="users.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'users.php' ? 'active' : ''; ?>">
-                    <i class="fas fa-users"></i>
-                    <span>Kelola Pengguna</span>
-                </a>
-                <a href="polyclinics.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'polyclinics.php' ? 'active' : ''; ?>">
-                    <i class="fas fa-clinic-medical"></i>
-                    <span>Kelola Poliklinik & Jadwal</span>
-                </a>
-                <a href="reservations.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'reservations.php' ? 'active' : ''; ?>">
-                    <i class="fas fa-list-ol"></i>
-                    <span>Kelola Antrian</span>
-                </a>
+
+                <?php if (!$is_doctor): ?>
+                    <a href="users.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'users.php' ? 'active' : ''; ?>">
+                        <i class="fas fa-users"></i>
+                        <span>Kelola Pengguna</span>
+                    </a>
+                    <a href="polyclinics.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'polyclinics.php' ? 'active' : ''; ?>">
+                        <i class="fas fa-clinic-medical"></i>
+                        <span>Kelola Poliklinik & Jadwal</span>
+                    </a>
+                    <a href="reservations.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'reservations.php' ? 'active' : ''; ?>">
+                        <i class="fas fa-list-ol"></i>
+                        <span>Kelola Antrian</span>
+                    </a>
+                <?php endif; ?>
                 
                 <a href="../logout.php" class="nav-item nav-logout">
                     <i class="fas fa-sign-out-alt"></i>

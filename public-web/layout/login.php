@@ -3,7 +3,8 @@ session_start();
 
 // Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
-    if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+    $role = $_SESSION['role'] ?? '';
+    if ($role === 'admin' || $role === 'doctor' || strpos($role, 'doctor-') === 0) {
         header('Location: ../../admin-panel/pages/index.php');
     } else {
         header('Location: main.php');
@@ -108,7 +109,8 @@ if (isset($_SESSION['user_id'])) {
                 
                 setTimeout(() => {
                     // Redirect based on user role
-                    if (data.user.role === 'admin') {
+                    const role = data.user.role || '';
+                    if (role === 'admin' || role === 'doctor' || role.startsWith('doctor-')) {
                         window.location.href = '../../admin-panel/pages/index.php';
                     } else {
                         window.location.href = 'main.php';

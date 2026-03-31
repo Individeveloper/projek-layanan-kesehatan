@@ -13,7 +13,7 @@ if (toggleSidebarBtn) {
 // Close sidebar when clicking outside on mobile
 document.addEventListener('click', (e) => {
     if (window.innerWidth <= 768) {
-        if (!sidebar.contains(e.target) && !toggleSidebarBtn.contains(e.target)) {
+        if (sidebar && toggleSidebarBtn && !sidebar.contains(e.target) && !toggleSidebarBtn.contains(e.target)) {
             sidebar.classList.remove('show');
         }
     }

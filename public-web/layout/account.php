@@ -8,7 +8,8 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Redirect admin to admin panel
-if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+$role = $_SESSION['role'] ?? '';
+if ($role === 'admin' || $role === 'doctor' || strpos($role, 'doctor-') === 0) {
     header('Location: ../../admin-panel/pages/index.php');
     exit;
 }
