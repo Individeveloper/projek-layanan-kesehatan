@@ -11,6 +11,10 @@ let formData = {
     address: '',
     phone: '',
     email: '',
+    hasReferral: true, // Default: Ada Rujukan (true = Yes, false = No)
+    referralNumber: '',
+    referralDate: '',
+    referralDoctor: '',
     poli: '',
     poliId: '',
     complaint: '',
@@ -27,11 +31,134 @@ let quotaCache = {}; // Cache untuk menyimpan data kuota
 let disabledDates = []; // Array untuk tanggal yang disabled
 let availableDates = []; // Array untuk tanggal yang available
 
+// Toggle referral input fields visibility
+function toggleReferralFields(hasReferral) {
+    const referralNumberSection = document.getElementById('referralNumberSection');
+    const referralDateSection = document.getElementById('referralDateSection');
+    const referralDoctorSection = document.getElementById('referralDoctorSection');
+    
+    const referralNumber = document.getElementById('referralNumber');
+    const referralDate = document.getElementById('referralDate');
+    const referralDoctor = document.getElementById('referralDoctor');
+
+    if (hasReferral) {
+        // Show referral fields if user has referral
+        if (referralNumberSection) referralNumberSection.style.display = 'block';
+        if (referralDateSection) referralDateSection.style.display = 'block';
+        if (referralDoctorSection) referralDoctorSection.style.display = 'block';
+        
+        // Set required attributes
+        if (referralNumber) referralNumber.setAttribute('required', 'required');
+        if (referralDoctor) referralDoctor.setAttribute('required', 'required');
+    } else {
+        // Hide referral fields if user doesn't have referral
+        if (referralNumberSection) referralNumberSection.style.display = 'none';
+        if (referralDateSection) referralDateSection.style.display = 'none';
+        if (referralDoctorSection) referralDoctorSection.style.display = 'none';
+        
+        // Remove required attributes and clear fields
+        if (referralNumber) {
+            referralNumber.removeAttribute('required');
+            referralNumber.value = '';
+            referralNumber.style.borderColor = '#E6EBFF';
+        }
+        if (referralDate) {
+            referralDate.value = '';
+            referralDate.style.borderColor = '#E6EBFF';
+        }
+        if (referralDoctor) {
+            referralDoctor.removeAttribute('required');
+            referralDoctor.value = '';
+            referralDoctor.style.borderColor = '#E6EBFF';
+        }
+    }
+}
+
+// Handle referral change logic
+function handleReferralChange(hasReferral) {
+    const poliSelect = document.getElementById('poli');
+    const referralStatusInfo = document.getElementById('referralStatusInfo');
+    const referralStatusText = document.getElementById('referralStatusText');
+    const poliHint = document.getElementById('poliHint');
+
+    if (!hasReferral) {
+        // No referral: auto-select Poli Umum and disable dropdown
+        const options = poliSelect.options;
+        let generalPoliOption = null;
+
+        // Cari Poli Umum dengan berbagai cara
+        for (let i = 0; i < options.length; i++) {
+            const optionText = options[i].text.toLowerCase().trim();
+            const optionValue = options[i].value.toLowerCase().trim();
+            
+            if (optionText === 'poli umum' || optionValue === 'poli umum') {
+                generalPoliOption = options[i];
+                break;
+            }
+        }
+
+        if (generalPoliOption) {
+            poliSelect.value = generalPoliOption.value;
+            formData.poli = generalPoliOption.value;
+            formData.poliId = generalPoliOption.getAttribute('data-id');
+            
+            console.log('Poli Umum auto-selected:', formData.poli, 'ID:', formData.poliId);
+        } else {
+            console.warn('Poli Umum tidak ditemukan di dropdown');
+        }
+
+        // Disable dropdown and show info
+        poliSelect.disabled = true;
+        if (poliHint) {
+            poliHint.textContent = 'Karena Anda tidak memiliki rujukan, otomatis dialihkan ke Poli Umum.';
+            poliHint.style.display = 'block';
+            poliHint.style.color = '#28a745';
+        }
+
+        // Show referral status info
+        if (referralStatusInfo) {
+            referralStatusText.textContent = 'Anda tidak memiliki rujukan. Anda akan berkonsultasi ke Poli Umum.';
+            referralStatusInfo.style.display = 'flex';
+        }
+
+        // Update poli display
+        updatePoliDisplay();
+        loadSchedulesForPoli();
+    } else {
+        // Has referral: enable dropdown and let user choose
+        poliSelect.disabled = false;
+        poliSelect.value = ''; // Clear selection
+        formData.poli = '';
+        formData.poliId = '';
+
+        if (poliHint) {
+            poliHint.textContent = 'Pilih poliklinik sesuai dengan surat rujukan Anda.';
+            poliHint.style.display = 'block';
+            poliHint.style.color = '#5B7FDB';
+        }
+
+        // Show referral status info
+        if (referralStatusInfo) {
+            referralStatusText.textContent = 'Anda memiliki rujukan. Silakan pilih poliklinik sesuai surat rujukan Anda.';
+            referralStatusInfo.style.display = 'flex';
+        }
+    }
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
     generateMedicalRecord();
     initializeDatePicker();
+    
+    // Set initial hasReferral value based on active referral card
+    const activeReferralCard = document.querySelector('.referral-card.active');
+    if (activeReferralCard) {
+        const hasReferral = activeReferralCard.dataset.referral === 'yes';
+        formData.hasReferral = hasReferral;
+        toggleReferralFields(hasReferral);
+        console.log('Initial hasReferral:', hasReferral);
+    }
 });
 
 // Initialize all event listeners
@@ -45,6 +172,23 @@ function initializeEventListeners() {
             const status = this.dataset.status;
             formData.patientStatus = status;
             togglePatientStatus(status);
+        });
+    });
+
+    // Referral toggle (Ada Rujukan / Tidak Ada Rujukan)
+    const referralCards = document.querySelectorAll('.referral-card');
+    referralCards.forEach(card => {
+        card.addEventListener('click', function() {
+            referralCards.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            const hasReferral = this.dataset.referral === 'yes';
+            formData.hasReferral = hasReferral;
+            
+            // Show/hide referral input fields
+            toggleReferralFields(hasReferral);
+            
+            // Clear poli selection and update available options
+            handleReferralChange(hasReferral);
         });
     });
 
@@ -80,6 +224,47 @@ function initializeEventListeners() {
             }
         });
     }
+
+    // --- TAMBAHAN FITUR AUTO-FILL PASIEN LAMA ---
+    const rmInput = document.getElementById('medicalRecord');
+    if (rmInput) {
+        rmInput.addEventListener('blur', function() {
+            const rmValue = this.value.trim();
+            if (rmValue) {
+                rmInput.style.borderColor = '#007bff';
+
+                fetch(`../../api/get_patient.php?rm=${rmValue}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('fullName').value = data.data.full_name;
+                            document.getElementById('nik').value = data.data.nik;
+                            document.getElementById('birthDate').value = data.data.date_of_birth;
+                            
+                            const genderSelect = document.getElementById('gender');
+                            if (genderSelect) {
+                                genderSelect.value = data.data.gender === 'L' ? 'Laki-laki' : 'Perempuan';
+                            }
+
+                            document.getElementById('address').value = data.data.address;
+                            document.getElementById('phone').value = data.data.phone_number;
+
+                            alert('Data pasien ditemukan! Form telah diisi otomatis.');
+                            rmInput.style.borderColor = '#28a745'; 
+                        } else {
+                            alert('Nomor RM tidak ditemukan. Silakan cek kembali atau daftar sebagai Pasien Baru.');
+                            rmInput.style.borderColor = '#DC3545'; 
+                            
+                            ['fullName', 'nik', 'birthDate', 'address', 'phone'].forEach(id => {
+                                const el = document.getElementById(id);
+                                if(el) el.value = '';
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Error fetching patient:', error));
+            }
+        });
+    }
 }
 
 // Initialize Flatpickr Date Picker
@@ -88,49 +273,30 @@ function initializeDatePicker() {
     if (!visitDateInput) return;
 
     flatpickrInstance = flatpickr(visitDateInput, {
-        locale: 'id', // Bahasa Indonesia
-        minDate: 'today', // Tidak boleh pilih tanggal lampau
+        locale: 'id', 
+        minDate: 'today', 
         dateFormat: 'Y-m-d',
         altInput: true,
         altFormat: 'd F Y',
         
-        // Disable dates berdasarkan data dari database
         disable: [
             function(date) {
                 const dateStr = formatDateToYMD(date);
-                
-                // Jika ada dalam disabledDates array, disable
-                if (disabledDates.includes(dateStr)) {
-                    return true;
-                }
-                
-                // Jika ada dalam availableDates, enable (return false)
+                if (disabledDates.includes(dateStr)) return true;
                 const isAvailable = availableDates.some(d => d.date === dateStr);
-                if (isAvailable) {
-                    return false;
-                }
+                if (isAvailable) return false;
                 
-                // Default: disable jika tidak ada di available dates
-                // Tapi izinkan jika data belum di-load (untuk smooth UX)
                 if (availableDates.length === 0 && disabledDates.length === 0) {
-                    // Data belum di-load, izinkan sementara (akan di-update setelah load)
                     const dayOfWeek = date.getDay();
-                    // Minimal disable weekend
                     return dayOfWeek === 0 || dayOfWeek === 6;
                 }
-                
-                // Jika data sudah di-load tapi tanggal ini tidak ada, disable
                 return true;
             }
         ],
 
-        // Event saat user memilih tanggal
         onChange: function(selectedDates, dateStr, instance) {
             if (selectedDates.length === 0) return;
-            
             formData.visitDate = dateStr;
-            
-            // Check quota dan load doctors
             if (formData.poliId) {
                 checkQuotaAndLoadDoctors(dateStr);
             } else {
@@ -139,38 +305,30 @@ function initializeDatePicker() {
         },
 
         onOpen: function(selectedDates, dateStr, instance) {
-            // Load available dates saat calendar dibuka
             if (formData.poliId && availableDates.length === 0) {
                 loadAvailableDates();
             }
         },
 
         onMonthChange: function(selectedDates, dateStr, instance) {
-            // Reload available dates saat bulan berubah
             if (formData.poliId) {
                 loadAvailableDates(instance.currentYear, instance.currentMonth);
             }
         },
 
         onReady: function(selectedDates, dateStr, instance) {
-            // Add tooltips to disabled dates
             const calendarDays = instance.calendarContainer.querySelectorAll('.flatpickr-day');
-            
             calendarDays.forEach(day => {
                 day.addEventListener('mouseenter', function() {
                     if (this.classList.contains('flatpickr-disabled')) {
-                        const dateAttr = this.getAttribute('aria-label');
                         const tooltip = document.createElement('div');
                         tooltip.className = 'flatpickr-tooltip';
-                        
-                        // Check if it's weekend or no schedule
                         const dayOfWeek = new Date(this.dateObj).getDay();
                         if (dayOfWeek === 0 || dayOfWeek === 6) {
                             tooltip.textContent = 'Tidak ada jadwal di hari Sabtu/Minggu';
                         } else {
                             tooltip.textContent = 'Tidak ada jadwal tersedia atau kuota penuh';
                         }
-                        
                         this.appendChild(tooltip);
                         this._tooltip = tooltip;
                     }
@@ -183,67 +341,26 @@ function initializeDatePicker() {
                     }
                 });
             });
-        },
-
-        onMonthChange: function(selectedDates, dateStr, instance) {
-            // Reload tooltips after month change
-            const calendarDays = instance.calendarContainer.querySelectorAll('.flatpickr-day');
-            
-            calendarDays.forEach(day => {
-                day.addEventListener('mouseenter', function() {
-                    if (this.classList.contains('flatpickr-disabled')) {
-                        const tooltip = document.createElement('div');
-                        tooltip.className = 'flatpickr-tooltip';
-                        
-                        const dayOfWeek = new Date(this.dateObj).getDay();
-                        if (dayOfWeek === 0 || dayOfWeek === 6) {
-                            tooltip.textContent = 'Tidak ada jadwal di hari Sabtu/Minggu';
-                        } else {
-                            tooltip.textContent = 'Tidak ada jadwal tersedia atau kuota penuh';
-                        }
-                        
-                        this.appendChild(tooltip);
-                        this._tooltip = tooltip;
-                    }
-                });
-
-                day.addEventListener('mouseleave', function() {
-                    if (this._tooltip) {
-                        this._tooltip.remove();
-                        this._tooltip = null;
-                    }
-                });
-            });
-
-            // Reload available dates
-            if (formData.poliId) {
-                loadAvailableDates(instance.currentYear, instance.currentMonth);
-            }
         }
     });
 }
 
-// Format date to YYYY-MM-DD
 function formatDateToYMD(date) {
     const offset = date.getTimezoneOffset();
     const localDate = new Date(date.getTime() - (offset * 60 * 1000));
     return localDate.toISOString().split('T')[0];
 }
 
-// Check quota and load doctors for selected date
 async function checkQuotaAndLoadDoctors(dateStr) {
-    if (!formData.poliId || !dateStr) {
-        return;
-    }
+    if (!formData.poliId || !dateStr) return;
 
     try {
-        // Fetch quota info
         const response = await fetch(`../../api/get_quota.php?polyclinic_id=${formData.poliId}&visit_date=${dateStr}`);
         const data = await response.json();
 
         if (data.success) {
             const available = data.available;
-            quotaCache[dateStr] = available; // Update cache
+            quotaCache[dateStr] = available; 
 
             if (available > 0) {
                 if (available <= 5) {
@@ -251,15 +368,12 @@ async function checkQuotaAndLoadDoctors(dateStr) {
                 } else {
                     showQuotaInfo('available', `Tersedia ${available} slot`);
                 }
-                // Load doctors untuk tanggal ini
                 loadDoctorsByDate();
             } else {
                 showQuotaInfo('full', 'Maaf, kuota untuk tanggal ini sudah penuh');
-                // Clear tanggal selection
                 flatpickrInstance.clear();
                 formData.visitDate = '';
                 
-                // Disable doctor dropdown
                 const doctorSelect = document.getElementById('doctor');
                 if (doctorSelect) {
                     doctorSelect.innerHTML = '<option value="">Pilih tanggal kunjungan terlebih dahulu</option>';
@@ -277,7 +391,6 @@ async function checkQuotaAndLoadDoctors(dateStr) {
     }
 }
 
-// Show quota info box
 function showQuotaInfo(type, message) {
     const quotaInfoBox = document.getElementById('quota-info');
     if (!quotaInfoBox) return;
@@ -305,28 +418,23 @@ function showQuotaInfo(type, message) {
     `;
 }
 
-// Preload quota for current visible month
 async function preloadQuotaForMonth() {
-    // This function is now replaced by loadAvailableDates
     if (formData.poliId) {
         loadAvailableDates();
     }
 }
 
-// Load available dates from API
 async function loadAvailableDates(year = null, month = null) {
     if (!formData.poliId) return;
 
     try {
-        // Show loading state
         if (flatpickrInstance && flatpickrInstance.calendarContainer) {
             flatpickrInstance.calendarContainer.classList.add('loading');
         }
 
-        // Calculate date range (current month + 2 months ahead)
         const today = new Date();
         const startDate = new Date(year || today.getFullYear(), month !== null ? month : today.getMonth(), 1);
-        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 3, 0); // 3 months ahead
+        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 3, 0); 
 
         const startDateStr = formatDateToYMD(startDate);
         const endDateStr = formatDateToYMD(endDate);
@@ -338,7 +446,6 @@ async function loadAvailableDates(year = null, month = null) {
             availableDates = data.available_dates;
             disabledDates = data.disabled_dates;
 
-            // Update quota cache
             availableDates.forEach(dateInfo => {
                 quotaCache[dateInfo.date] = dateInfo.available;
             });
@@ -347,21 +454,14 @@ async function loadAvailableDates(year = null, month = null) {
                 quotaCache[dateStr] = 0;
             });
 
-            // Redraw flatpickr calendar dengan data baru
             if (flatpickrInstance) {
                 flatpickrInstance.redraw();
             }
 
-            console.log('Available dates loaded:', availableDates.length);
-            console.log('Disabled dates:', disabledDates.length);
-
-            // Show message if no available dates
             if (availableDates.length === 0) {
-                showQuotaInfo('warning', 'Tidak ada jadwal tersedia untuk poli ini dalam 3 bulan ke depan. Silakan hubungi rumah sakit untuk informasi lebih lanjut.');
+                showQuotaInfo('warning', 'Tidak ada jadwal tersedia untuk poli ini dalam 3 bulan ke depan.');
             }
         } else {
-            console.error('Failed to load available dates:', data.message);
-            // Jika tidak ada jadwal sama sekali
             availableDates = [];
             disabledDates = [];
             showQuotaInfo('full', data.message || 'Tidak ada jadwal tersedia untuk poli ini');
@@ -370,37 +470,59 @@ async function loadAvailableDates(year = null, month = null) {
         console.error('Error loading available dates:', error);
         showQuotaInfo('warning', 'Gagal memuat jadwal. Silakan coba lagi.');
     } finally {
-        // Remove loading state
         if (flatpickrInstance && flatpickrInstance.calendarContainer) {
             flatpickrInstance.calendarContainer.classList.remove('loading');
         }
     }
 }
 
-// Set minimum date to today for visit date (Legacy - replaced by Flatpickr)
-function setMinDate() {
-    // This function is now handled by Flatpickr
-}
-
-// Disable weekends (Saturday and Sunday) (Legacy - replaced by Flatpickr)
-function disableWeekends() {
-    // This function is now handled by Flatpickr
-}
-
 // Toggle between new and existing patient
 function togglePatientStatus(status) {
     const rmInputSection = document.getElementById('rmInputSection');
     const rmDisplaySection = document.getElementById('rmDisplaySection');
+    const rmInput = document.getElementById('medicalRecord');
+    const rmSearchStatus = document.getElementById('rmSearchStatus');
 
     if (status === 'new') {
         // New patient: show auto-generated RM, hide manual input
         rmDisplaySection.style.display = 'block';
         rmInputSection.style.display = 'none';
+        
+        // Reset search status
+        if (rmSearchStatus) {
+            rmSearchStatus.style.display = 'none';
+        }
+        
+        // Kosongkan form jika pindah ke Pasien Baru
+        ['medicalRecord', 'fullName', 'nik', 'birthDate', 'gender', 'address', 'phone', 'email'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.value = '';
+                el.style.borderColor = '#E6EBFF';
+            }
+        });
+
         generateMedicalRecord();
     } else {
         // Existing patient: show manual RM input, hide auto display
         rmDisplaySection.style.display = 'none';
         rmInputSection.style.display = 'block';
+        
+        // Reset search status
+        if (rmSearchStatus) {
+            rmSearchStatus.style.display = 'none';
+        }
+        
+        // Reset form but keep RM input
+        formData.medicalRecord = '';
+        
+        ['fullName', 'nik', 'birthDate', 'gender', 'address', 'phone', 'email'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.value = '';
+                el.style.borderColor = '#E6EBFF';
+            }
+        });
     }
 }
 
@@ -416,20 +538,80 @@ function generateMedicalRecord() {
     }
 }
 
-// Load schedules for selected polyclinic
-function loadSchedulesForPoli() {
-    if (!formData.poliId) {
+// Search patient by medical record
+async function searchPatientByRM() {
+    const medicalRecordInput = document.getElementById('medicalRecord');
+    const rmSearchStatus = document.getElementById('rmSearchStatus');
+    const medicalRecord = medicalRecordInput.value.trim();
+
+    if (!medicalRecord) {
+        showRMSearchStatus('error', '<i class="fas fa-exclamation-circle"></i> Masukan nomor rekam medis');
         return;
     }
 
-    // Reset doctor dropdown when poli changes
+    // Show loading
+    showRMSearchStatus('loading', '<i class="fas fa-spinner"></i> Mencari data...');
+    const searchBtn = document.querySelector('.btn-search-rm');
+    searchBtn.disabled = true;
+
+    try {
+        const response = await fetch(`../../api/get_patient_by_medical_record.php?medical_record=${encodeURIComponent(medicalRecord)}`);
+        const data = await response.json();
+
+        if (data.success) {
+            // Fill form dengan data yang ditemukan
+            fillPatientData(data.data);
+            showRMSearchStatus('success', '<i class="fas fa-check-circle"></i> Data pasien ditemukan dan terisi otomatis');
+            formData.medicalRecord = medicalRecord;
+            medicalRecordInput.style.borderColor = '#28a745';
+        } else {
+            showRMSearchStatus('error', `<i class="fas fa-times-circle"></i> ${data.message}`);
+            medicalRecordInput.style.borderColor = '#DC3545';
+        }
+    } catch (error) {
+        console.error('Error searching patient:', error);
+        showRMSearchStatus('error', '<i class="fas fa-times-circle"></i> Gagal mencari data. Silakan coba lagi.');
+        medicalRecordInput.style.borderColor = '#DC3545';
+    } finally {
+        searchBtn.disabled = false;
+    }
+}
+
+// Show search status message
+function showRMSearchStatus(type, message) {
+    const rmSearchStatus = document.getElementById('rmSearchStatus');
+    rmSearchStatus.className = type;
+    rmSearchStatus.innerHTML = message;
+    rmSearchStatus.style.display = 'flex';
+}
+
+// Fill patient form dengan data dari database
+function fillPatientData(data) {
+    document.getElementById('fullName').value = data.fullName;
+    document.getElementById('nik').value = data.nik;
+    document.getElementById('birthDate').value = data.birthDate;
+    document.getElementById('gender').value = data.gender;
+    document.getElementById('address').value = data.address;
+    document.getElementById('phone').value = data.phone;
+
+    // Update form data object
+    formData.fullName = data.fullName;
+    formData.nik = data.nik;
+    formData.birthDate = data.birthDate;
+    formData.gender = data.gender;
+    formData.address = data.address;
+    formData.phone = data.phone;
+}
+
+function loadSchedulesForPoli() {
+    if (!formData.poliId) return;
+
     const doctorSelect = document.getElementById('doctor');
     if (doctorSelect) {
         doctorSelect.innerHTML = '<option value="">Pilih tanggal kunjungan terlebih dahulu</option>';
         doctorSelect.disabled = true;
     }
 
-    // Reset visit date
     const visitDateInput = document.getElementById('visitDate');
     if (visitDateInput) {
         if (flatpickrInstance) {
@@ -440,29 +622,22 @@ function loadSchedulesForPoli() {
         formData.visitDate = '';
     }
 
-    // Hide quota info
     const quotaInfoBox = document.getElementById('quota-info');
     if (quotaInfoBox) {
         quotaInfoBox.style.display = 'none';
     }
 
-    // Clear quota cache for new poli
     quotaCache = {};
     availableDates = [];
     disabledDates = [];
 
-    // Fetch schedules for the polyclinic
     fetch(`../../api/get_schedules.php?polyclinic_id=${formData.poliId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 availableSchedules = data.data;
-                console.log('Loaded schedules:', availableSchedules);
-                
-                // Load available dates untuk update calendar
                 loadAvailableDates();
             } else {
-                console.error('Failed to load schedules');
                 availableSchedules = [];
             }
         })
@@ -472,32 +647,23 @@ function loadSchedulesForPoli() {
         });
 }
 
-// Load doctors based on selected date
 function loadDoctorsByDate() {
-    if (!formData.visitDate || !formData.poliId) {
-        return;
-    }
+    if (!formData.visitDate || !formData.poliId) return;
 
-    // Get day name in Indonesian
     const selectedDate = new Date(formData.visitDate);
     const dayOfWeek = selectedDate.getDay();
     
-    // Check if weekend (should not happen due to validation)
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
-        return;
-    }
+    if (dayOfWeek === 0 || dayOfWeek === 6) return;
 
     const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     const indonesianDay = dayNames[dayOfWeek];
 
-    // Fetch schedule for specific date
     fetch(`../../api/get_schedules.php?polyclinic_id=${formData.poliId}&visit_date=${formData.visitDate}`)
         .then(response => response.json())
         .then(data => {
             const doctorSelect = document.getElementById('doctor');
             
             if (data.success && data.data.length > 0) {
-                // Clear and populate doctor dropdown
                 doctorSelect.innerHTML = '<option value="">-- Pilih Dokter --</option>';
                 
                 data.data.forEach(schedule => {
@@ -510,7 +676,6 @@ function loadDoctorsByDate() {
                 
                 doctorSelect.disabled = false;
             } else {
-                // No schedule available for this date
                 doctorSelect.innerHTML = '<option value="">Tidak ada jadwal dokter pada tanggal ini</option>';
                 doctorSelect.disabled = true;
                 alert(`Maaf, tidak ada jadwal ${formData.poli} pada hari ${indonesianDay}. Silakan pilih tanggal lain.`);
@@ -519,12 +684,13 @@ function loadDoctorsByDate() {
         .catch(error => {
             console.error('Error loading doctors:', error);
             const doctorSelect = document.getElementById('doctor');
-            doctorSelect.innerHTML = '<option value="">Gagal memuat data dokter</option>';
-            doctorSelect.disabled = true;
+            if (doctorSelect) {
+                doctorSelect.innerHTML = '<option value="">Gagal memuat data dokter</option>';
+                doctorSelect.disabled = true;
+            }
         });
 }
 
-// Update poli display in step 3
 function updatePoliDisplay() {
     const poliDisplay = document.getElementById('selectedPoliDisplay');
     if (poliDisplay && formData.poli) {
@@ -532,61 +698,48 @@ function updatePoliDisplay() {
     }
 }
 
-// Navigate to next step
 function nextStep(stepNumber) {
-    // Check if user is logged in before proceeding
     if (typeof IS_LOGGED_IN !== 'undefined' && !IS_LOGGED_IN) {
-        console.log('User not logged in. Redirecting to login page.');
         window.location.href = 'login.php';
         return;
     }
 
-    // Validate current step before moving
     const currentStep = stepNumber - 1;
-    if (!validateStep(currentStep)) {
-        return;
-    }
+    if (!validateStep(currentStep)) return;
 
-    // Save current step data
     saveStepData(currentStep);
 
-    // Hide all steps
     const steps = document.querySelectorAll('.step-content');
     steps.forEach(step => step.classList.remove('active'));
 
-    // Show target step
     const targetStep = document.getElementById('step' + stepNumber);
-    if (targetStep) {
-        targetStep.classList.add('active');
-    }
+    if (targetStep) targetStep.classList.add('active');
 
-    // Update stepper
     updateStepper(stepNumber);
 
-    // Scroll to top
+    if (stepNumber === 2) {
+        handleReferralChange(formData.hasReferral);
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Navigate to previous step
 function prevStep(stepNumber) {
-    // Hide all steps
     const steps = document.querySelectorAll('.step-content');
     steps.forEach(step => step.classList.remove('active'));
 
-    // Show target step
     const targetStep = document.getElementById('step' + stepNumber);
-    if (targetStep) {
-        targetStep.classList.add('active');
-    }
+    if (targetStep) targetStep.classList.add('active');
 
-    // Update stepper
     updateStepper(stepNumber);
 
-    // Scroll to top
+    if (stepNumber === 2) {
+        handleReferralChange(formData.hasReferral);
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Update progress stepper
 function updateStepper(activeStep) {
     const steps = document.querySelectorAll('.progress-stepper .step');
     
@@ -597,7 +750,6 @@ function updateStepper(activeStep) {
         if (stepNum < activeStep) {
             step.classList.add('completed');
         } else if (stepNum === activeStep) {
-            // Step 4 adalah step terakhir (selesai), maka beri class completed juga
             if (activeStep === 4) {
                 step.classList.add('completed');
             } else {
@@ -607,16 +759,18 @@ function updateStepper(activeStep) {
     });
 }
 
-// Validate step before proceeding
 function validateStep(stepNumber) {
     let isValid = true;
 
     if (stepNumber === 1) {
-        // Validate Step 1: Patient Data
-        const requiredFields = ['fullName', 'nik', 'birthDate', 'gender', 'address', 'phone', 'email'];
+        const requiredFields = ['fullName', 'nik', 'birthDate', 'gender', 'address', 'phone'];
         
         if (formData.patientStatus === 'existing') {
             requiredFields.push('medicalRecord');
+        }
+
+        if (formData.hasReferral) {
+            requiredFields.push('referralNumber', 'referralDoctor');
         }
 
         requiredFields.forEach(field => {
@@ -629,14 +783,12 @@ function validateStep(stepNumber) {
             }
         });
 
-        // Validate NIK (must be 16 digits)
         const nikInput = document.getElementById('nik');
         if (nikInput && nikInput.value.length !== 16) {
             isValid = false;
             nikInput.style.borderColor = '#DC3545';
         }
 
-        // Validate phone (must start with 08)
         const phoneInput = document.getElementById('phone');
         if (phoneInput && !phoneInput.value.startsWith('08')) {
             isValid = false;
@@ -644,7 +796,6 @@ function validateStep(stepNumber) {
         }
 
     } else if (stepNumber === 2) {
-        // Validate Step 2: Poli Selection
         const poliInput = document.getElementById('poli');
         if (!poliInput.value) {
             isValid = false;
@@ -654,7 +805,6 @@ function validateStep(stepNumber) {
         }
 
     } else if (stepNumber === 3) {
-        // Validate Step 3: Visit Data
         const requiredFields = ['complaint', 'visitDate', 'doctor'];
         
         requiredFields.forEach(field => {
@@ -675,10 +825,8 @@ function validateStep(stepNumber) {
     return isValid;
 }
 
-// Save step data
 function saveStepData(stepNumber) {
     if (stepNumber === 1) {
-        // Save patient data
         if (formData.patientStatus === 'existing') {
             formData.medicalRecord = document.getElementById('medicalRecord').value;
         }
@@ -688,92 +836,87 @@ function saveStepData(stepNumber) {
         formData.gender = document.getElementById('gender').value;
         formData.address = document.getElementById('address').value;
         formData.phone = document.getElementById('phone').value;
-        formData.email = document.getElementById('email').value;
+        
+        const emailInput = document.getElementById('email');
+        if(emailInput) formData.email = emailInput.value;
+
+        formData.referralNumber = document.getElementById('referralNumber')?.value || '';
+        formData.referralDate = document.getElementById('referralDate')?.value || '';
+        formData.referralDoctor = document.getElementById('referralDoctor')?.value || '';
 
     } else if (stepNumber === 2) {
-        // Save poli selection
         formData.poli = document.getElementById('poli').value;
         const poliSelect = document.getElementById('poli');
-        const selectedOption = poliSelect.options[poliSelect.selectedIndex];
-        formData.poliId = selectedOption.getAttribute('data-id');
+        if(poliSelect.selectedIndex >= 0) {
+            const selectedOption = poliSelect.options[poliSelect.selectedIndex];
+            formData.poliId = selectedOption.getAttribute('data-id');
+        }
         updatePoliDisplay();
 
     } else if (stepNumber === 3) {
-        // Save visit data
         formData.complaint = document.getElementById('complaint').value;
         formData.visitDate = document.getElementById('visitDate').value;
         formData.doctor = document.getElementById('doctor').value;
     }
 
-    // Save to localStorage
     localStorage.setItem('reservationData', JSON.stringify(formData));
 }
 
-// Submit reservation
 function submitReservation() {
-    // Validate step 3
-    if (!validateStep(3)) {
-        return;
-    }
+    if (!validateStep(3)) return;
 
-    // Save step 3 data
     saveStepData(3);
 
-    // Cek login
     if (typeof IS_LOGGED_IN !== 'undefined' && !IS_LOGGED_IN) {
         alert('Silakan login terlebih dahulu untuk melakukan reservasi.');
         window.location.href = 'login.php';
         return;
     }
 
-    // Generate timestamp
     const now = new Date();
     formData.timestamp = now.toLocaleString('id-ID');
 
-    // Submit ke backend
     submitToBackend();
 }
 
-// Generate queue number
-function generateQueueNumber() {
-    const randomQueue = Math.floor(Math.random() * 999) + 1;
-    const queueNumber = randomQueue.toString().padStart(3, '0');
-    formData.queueNumber = queueNumber;
-}
-
-// Display confirmation on step 4
 function displayConfirmation() {
-    // Update queue number
     const queueDisplay = document.getElementById('queueNumber');
-    if (queueDisplay) {
-        queueDisplay.textContent = formData.queueNumber;
-    }
+    if (queueDisplay) queueDisplay.textContent = formData.queueNumber;
 
-    // Update confirmation details
-    document.getElementById('confirmName').textContent = formData.fullName;
-    document.getElementById('confirmRM').textContent = formData.medicalRecord;
-    document.getElementById('confirmPoli').textContent = formData.poli;
-    document.getElementById('confirmDoctor').textContent = formData.doctor;
+    const nameDisplay = document.getElementById('confirmName');
+    if(nameDisplay) nameDisplay.textContent = formData.fullName;
     
-    // Format date
+    const rmDisplay = document.getElementById('confirmRM');
+    if(rmDisplay) rmDisplay.textContent = formData.medicalRecord;
+    
+    const poliDisplay = document.getElementById('confirmPoli');
+    if(poliDisplay) poliDisplay.textContent = formData.poli;
+    
+    const docDisplay = document.getElementById('confirmDoctor');
+    if(docDisplay) docDisplay.textContent = formData.doctor;
+    
     const visitDate = new Date(formData.visitDate);
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const formattedDate = visitDate.toLocaleDateString('id-ID', options);
-    document.getElementById('confirmDate').textContent = formattedDate;
     
-    document.getElementById('confirmPayment').textContent = formData.paymentMethod.charAt(0).toUpperCase() + formData.paymentMethod.slice(1);
-    document.getElementById('timestamp').textContent = formData.timestamp;
+    const dateDisplay = document.getElementById('confirmDate');
+    if(dateDisplay) dateDisplay.textContent = formattedDate;
+    
+    const payDisplay = document.getElementById('confirmPayment');
+    if(payDisplay && formData.paymentMethod) payDisplay.textContent = formData.paymentMethod.charAt(0).toUpperCase() + formData.paymentMethod.slice(1);
+    
+    const timeDisplay = document.getElementById('timestamp');
+    if(timeDisplay) timeDisplay.textContent = formData.timestamp;
 }
 
-// Download receipt (print for now)
 function downloadReceipt() {
     window.print();
 }
 
-// Submit to backend
 function submitToBackend() {
-    // Tampilkan loading
     const submitBtn = document.querySelector('#step3 .btn-primary');
+    if(!submitBtn) return;
+    
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Memproses...';
     submitBtn.disabled = true;
@@ -791,14 +934,11 @@ function submitToBackend() {
         submitBtn.disabled = false;
 
         if (data.success) {
-            // Gunakan data dari server
             formData.queueNumber = data.data.queue_number;
             formData.timestamp = data.data.timestamp;
 
-            // Display confirmation
             displayConfirmation();
 
-            // Move to step 4
             const steps = document.querySelectorAll('.step-content');
             steps.forEach(step => step.classList.remove('active'));
             const step4 = document.getElementById('step4');
@@ -806,13 +946,12 @@ function submitToBackend() {
             updateStepper(4);
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // Hapus localStorage
             localStorage.removeItem('reservationData');
         } else {
             if (data.redirect) {
                 window.location.href = data.redirect;
             } else {
-                console.log(data.message || 'Terjadi kesalahan saat memproses reservasi');
+                alert(data.message || 'Terjadi kesalahan saat memproses reservasi');
             }
         }
     })
@@ -820,6 +959,6 @@ function submitToBackend() {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
         console.error('Error:', error);
-        console.log('Terjadi kesalahan koneksi. Silakan coba lagi.');
+        alert('Terjadi kesalahan koneksi. Silakan coba lagi.');
     });
 }

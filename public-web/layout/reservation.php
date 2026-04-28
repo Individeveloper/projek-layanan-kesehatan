@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,33 +11,53 @@
     <link rel="stylesheet" href="../style/main.css">
     <link rel="stylesheet" href="../style/reservation.css">
 </head>
+
 <body>
-    <?php 
+    <?php
     session_start();
-    
+
     // Redirect admin to admin panel
     $role = $_SESSION['role'] ?? '';
     if ($role === 'admin' || $role === 'doctor' || strpos($role, 'doctor-') === 0) {
         header('Location: ../../admin-panel/pages/index.php');
         exit;
     }
-    
+
     // Cek apakah user sudah login, jika belum redirect ke login
     if (!isset($_SESSION['user_id'])) {
         header('Location: login.php');
         exit();
     }
-    
+
     require_once '../../config/connection.php';
-    include 'component/navbar.php';
-    
-    // Ambil data poli dari database
-    $poliResult = $db->query("SELECT id, name FROM polyclinics ORDER BY name");
-    $polyclinics = [];
+    // 1. Pastikan koneksi sukses dulu
+if (!$db) {
+    die("Koneksi database gagal!");
+}
+
+// 2. Lakukan query dengan variabel yang didefinisikan dengan jelas
+$poliResult = $db->query("SELECT id, name FROM polyclinics ORDER BY name");
+
+// 3. Ambil datanya ke array
+$polyclinics = [];
+if ($poliResult) {
     while ($row = $poliResult->fetch_assoc()) {
         $polyclinics[] = $row;
     }
-    
+}
+    include 'component/navbar.php';
+
+    // Ambil data poli dari database
+    // Tambahkan pengecekan apakah query berhasil
+    if ($poliResult) {
+        while ($row = $poliResult->fetch_assoc()) {
+            $polyclinics[] = $row;
+        }
+    } else {
+        // Debugging: jika gagal, tulis error ke log atau tampilkan (bisa dihapus nanti)
+        echo "Query Gagal: " . $db->error;
+    }
+
     // Cek apakah user sudah login
     $isLoggedIn = isset($_SESSION['user_id']);
     ?>
@@ -69,7 +90,7 @@
         <div class="step-content active" id="step1">
             <div class="form-card">
                 <h2 class="form-title">Data Diri Pasien</h2>
-                
+
                 <div class="patient-status-section">
                     <label class="section-label">Status Pasien</label>
                     <div class="status-cards">
@@ -86,10 +107,30 @@
                     </div>
                 </div>
 
+                <!-- Medical Record Display (for new patients - auto-generated) -->
+                <div class="form-group" id="rmDisplaySection" style="display: none;">
+                    <label class="section-label">Nomor Rekam Medis</label>
+                    <div class="rm-display-card">
+                        <i class="fas fa-file-medical"></i>
+                        <div>
+                            <p class="rm-label">Nomor RM Anda:</p>
+                            <p class="rm-number" id="rmNumberDisplay">RM-0000000</p>
+                        </div>
+                    </div>
+                    <small class="form-hint"><i class="fas fa-info-circle"></i> Simpan nomor ini untuk referensi</small>
+                </div>
+
                 <!-- Medical Record Input (for existing patients - manual input) -->
                 <div class="form-group" id="rmInputSection" style="display: none;">
                     <label for="medicalRecord">No Rekam Medis<span class="required">*</span></label>
-                    <input type="text" id="medicalRecord" name="medicalRecord" placeholder="Masukan nomor rekam medis" required>
+                    <div class="rm-input-wrapper">
+                        <input type="text" id="medicalRecord" name="medicalRecord" placeholder="Masukan nomor rekam medis" required>
+                        <button type="button" class="btn-search-rm" onclick="searchPatientByRM()">
+                            <i class="fas fa-search"></i> Cari
+                        </button>
+                    </div>
+                    <small class="form-hint"><i class="fas fa-info-circle"></i> Masukan nomor RM Anda dan klik Cari untuk mengisi data otomatis</small>
+                    <div id="rmSearchStatus" style="display: none; margin-top: 10px;"></div>
                 </div>
 
                 <div class="form-group">
@@ -136,6 +177,44 @@
                     </div>
                 </div>
 
+                <!-- Referral Section -->
+                <div class="referral-section">
+                    <label class="section-label">Apakah Anda memiliki Rujukan?</label>
+                    <div class="referral-cards">
+                        <div class="referral-card" data-referral="no">
+                            <i class="fas fa-times-circle"></i>
+                            <h3>Tidak Ada Rujukan</h3>
+                            <p>Konsultasi ke Poli Umum</p>
+                        </div>
+                        <div class="referral-card active" data-referral="yes">
+                            <i class="fas fa-file-contract"></i>
+                            <h3>Ada Rujukan</h3>
+                            <p>Pilih poli sesuai rujukan</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Referral Number Input (shown when user has referral) -->
+                <div class="form-group" id="referralNumberSection" style="display: block;">
+                    <label for="referralNumber">No Rujukan<span class="required">*</span></label>
+                    <input type="text" id="referralNumber" name="referralNumber" placeholder="Masukan nomor surat rujukan" required>
+                </div>
+
+                <!-- Referral Date Input (shown when user has referral) -->
+                <div class="form-group" id="referralDateSection" style="display: block;">
+                    <label for="referralDate">Tanggal Rujukan</label>
+                    <div class="date-input-wrapper">
+                        <i class="fas fa-calendar-alt date-icon"></i>
+                        <input type="date" id="referralDate" name="referralDate">
+                    </div>
+                </div>
+
+                <!-- Referral Doctor Input (shown when user has referral) -->
+                <div class="form-group" id="referralDoctorSection" style="display: block;">
+                    <label for="referralDoctor">Nama Dokter yang Merujuk<span class="required">*</span></label>
+                    <input type="text" id="referralDoctor" name="referralDoctor" placeholder="Masukan nama dokter" required>
+                </div>
+
                 <button class="btn-primary" onclick="nextStep(2)">Simpan & Lanjut</button>
             </div>
         </div>
@@ -144,17 +223,33 @@
         <div class="step-content" id="step2">
             <div class="form-card">
                 <h2 class="form-title">Pilih Poli</h2>
-                
+
+                <!-- Info box for referral status -->
+                <div id="referralStatusInfo" class="info-box" style="display: none;">
+                    <i class="fas fa-info-circle"></i>
+                    <div class="info-content">
+                        <strong>Status Rujukan</strong>
+                        <p id="referralStatusText"></p>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="poli">Pilih Poliklinik<span class="required">*</span></label>
                     <select id="poli" name="poli" required>
                         <option value="">--Pilih Poli--</option>
-                        <?php foreach ($polyclinics as $poli): ?>
-                            <option value="<?php echo htmlspecialchars($poli['name']); ?>" data-id="<?php echo $poli['id']; ?>">
-                                <?php echo htmlspecialchars($poli['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
+                        <?php 
+                        if (isset($polyclinics) && count($polyclinics) > 0) {
+                            foreach ($polyclinics as $poli) {
+                                echo '<option value="' . htmlspecialchars($poli['name']) . '" data-id="' . $poli['id'] . '">';
+                                echo htmlspecialchars($poli['name']);
+                                echo '</option>';
+                            }
+                        } else {
+                            echo '<option value="">Data Poli Kosong</option>';
+                        }
+                        ?>
                     </select>
+                    <small id="poliHint" class="form-hint" style="display: none;"></small>
                 </div>
 
                 <div class="form-actions">
@@ -297,4 +392,5 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
     <script src="../js/reservation.js"></script>
 </body>
+
 </html>

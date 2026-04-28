@@ -9,27 +9,27 @@ if ($role === 'admin' || $role === 'doctor' || strpos($role, 'doctor-') === 0) {
 }
 $doctors = [
         [
-            'name' => 'dr. Alya Putri',
+            'name' => 'dr. Siti Aminah, Sp.PD',
             'image' => '../assets/doctor-picture/doktor0.png',
             'badge' => 'Umum',
             'appointment' => false,
         ],
         [
-            'name' => 'dr. Keisha Larasati, Sp.A',
+            'name' => 'dr. Maya Lestari, Sp.A',
             'image' => '../assets/doctor-picture/doktor1.png',
             'badge' => 'Anak',
             'appointment' => true,
         ],
         [
-            'name' => 'dr. Rizky Mahendra, Sp.JP',
+            'name' => 'dr. Hendra Gunawan, Sp.JP',
             'image' => '../assets/doctor-picture/doktor2.png',
             'badge' => 'Jantung',
             'appointment' => true,
         ],
         [
-            'name' => 'dr. Fajar Nugroho, Sp.Rad',
+            'name' => 'dr. Andi Pratama, Sp.KG',
             'image' => '../assets/doctor-picture/doktor3.png',
-            'badge' => 'Radiologi',
+            'badge' => 'Gigi',
             'appointment' => true,
         ],
     ];
