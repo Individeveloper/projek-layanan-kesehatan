@@ -34,6 +34,7 @@ if ($visit_date) {
 // Build query
 if ($day_of_week) {
     // Get schedule for specific day
+    // PERBAIKAN: Menggunakan LEFT JOIN ke tabel doctors
     $stmt = $db->prepare("
         SELECT 
             ps.id,
@@ -41,16 +42,18 @@ if ($day_of_week) {
             ps.start_time,
             ps.end_time,
             ps.quota,
-            ps.doctor_name,
+            d.name as doctor_name, 
             p.name as polyclinic_name
         FROM polyclinic_schedules ps
         JOIN polyclinics p ON ps.polyclinic_id = p.id
+        LEFT JOIN doctors d ON ps.doctor_id = d.id 
         WHERE ps.polyclinic_id = ? AND ps.day_of_week = ?
         ORDER BY ps.start_time
     ");
     $stmt->bind_param("is", $polyclinic_id, $day_of_week);
 } else {
     // Get all schedules for the polyclinic
+    // PERBAIKAN: Menggunakan LEFT JOIN ke tabel doctors
     $stmt = $db->prepare("
         SELECT 
             ps.id,
@@ -58,10 +61,11 @@ if ($day_of_week) {
             ps.start_time,
             ps.end_time,
             ps.quota,
-            ps.doctor_name,
+            d.name as doctor_name,
             p.name as polyclinic_name
         FROM polyclinic_schedules ps
         JOIN polyclinics p ON ps.polyclinic_id = p.id
+        LEFT JOIN doctors d ON ps.doctor_id = d.id
         WHERE ps.polyclinic_id = ?
         ORDER BY FIELD(ps.day_of_week, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'), ps.start_time
     ");
@@ -79,7 +83,8 @@ while ($row = $result->fetch_assoc()) {
         'start_time' => substr($row['start_time'], 0, 5), // HH:MM format
         'end_time' => substr($row['end_time'], 0, 5),
         'quota' => $row['quota'],
-        'doctor_name' => $row['doctor_name'],
+        // PERBAIKAN: Jika doctor_name null dari database, beri teks fallback
+        'doctor_name' => $row['doctor_name'] ? $row['doctor_name'] : 'Dokter Belum Ditugaskan',
         'polyclinic_name' => $row['polyclinic_name']
     ];
 }

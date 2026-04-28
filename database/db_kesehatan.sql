@@ -185,7 +185,18 @@ ALTER TABLE `patients`
 -- AUTO_INCREMENT untuk tabel `polyclinics`
 --
 ALTER TABLE `polyclinics`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- Data untuk tabel `polyclinics`
+--
+INSERT INTO `polyclinics` (`id`, `name`) VALUES
+(1, 'Poli Umum'),
+(2, 'Poli Gigi'),
+(3, 'Poli Mata'),
+(4, 'Poli Saraf'),
+(5, 'Poli Jantung'),
+(6, 'Poli Anak');
 
 --
 -- AUTO_INCREMENT untuk tabel `polyclinic_schedules`
